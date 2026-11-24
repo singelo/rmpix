@@ -46,3 +46,6 @@ Nome do titular, paródias curtas de cartões distribuídas por ID sem repetir n
 
 ## v0.5.6 — Peão no cartão
 Peão colorido junto ao nome do titular dentro do cartão; removida a apresentação duplicada acima da carteira e o subtítulo redundante. Peão preserva X na falência e coroa na vitória. Ajustes para nomes longos e telas estreitas; fundo cinza de falência também nas cores com gradiente específico. Sem alterações de regras ou armazenamento.
+
+## v0.5.7 — Cartão sem ruído
+Removido o status permanente de saldo atualizado e o fundo branco do peão. Peça do cartão com iluminação e gradiente próprios, preservando cor, X e coroa. Avisos somente quando relevantes: reserva de leilão, encerramento ou campeão. Falência continua sinalizada pelo carimbo e rachadura. Sem alterações de regras ou armazenamento.
