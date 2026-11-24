@@ -49,3 +49,6 @@ Peão colorido junto ao nome do titular dentro do cartão; removida a apresenta�
 
 ## v0.5.7 — Cartão sem ruído
 Removido o status permanente de saldo atualizado e o fundo branco do peão. Peça do cartão com iluminação e gradiente próprios, preservando cor, X e coroa. Avisos somente quando relevantes: reserva de leilão, encerramento ou campeão. Falência continua sinalizada pelo carimbo e rachadura. Sem alterações de regras ou armazenamento.
+
+## v0.5.8 — Acabamento do peão
+Removidas as sombras externas do peão no cartão, inclusive nos estados falido e campeão. Gradiente, coroa e X preservados.
