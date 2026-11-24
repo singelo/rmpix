@@ -60,3 +60,6 @@ O Hall também calcula o tempo acumulado abaixo de 10% do saldo inicial em parti
 
 ## v0.6.2 — Títulos em disputa
 Seis títulos exclusivos e recalculados pelo extrato durante a partida: Rei do Pix (maior Pix enviado), Agente do Caos (operações acumuladas, envio ou recebimento), Dono do Cofre (saldo atual de sobrevivente acima do inicial), Rei do Martelo (maior arrematação total), Corretor Mor (mais vendas) e Rei do Boleto (mais pagamentos ao banco). Empate preserva titular; primeiro registro usa ordem das operações e prefere pagador em empate inicial. Recordes históricos podem permanecer com falidos, saldo atual não. Selos pessoais permanentes separados; miséria é status temporário e aviso uma vez por sala. Histórico de trocas reconstruído inclusive em salas antigas. Sem mudança de saldo, migração ou novas dependências.
+
+## v0.6.3 — Saldo animado refinado
+Contador visual de 780 ms com aceleração e desaceleração suaves, retorno gradual à cor normal e continuidade em movimentações consecutivas. Preferência de movimento reduzido preservada. Nenhum atraso na movimentação real.
