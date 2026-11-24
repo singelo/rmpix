@@ -22,5 +22,8 @@
       ]
     }
   ],
-  "workers_dev": true
+  "workers_dev": true,
+  "observability": {
+    "enabled": true
+  }
 }
