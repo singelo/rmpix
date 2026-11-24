@@ -16,7 +16,7 @@ export function move(s,actor,b,now=Date.now()) {
  if(typeof b.requestId!=='string'||!/^[a-zA-Z0-9-]{16,80}$/.test(b.requestId)) fail('Identificador inválido.');
  if(s.transactions.some(t=>t.actor===actor&&t.id===b.requestId)) return false;
  if(s.ended) fail('Partida encerrada.');
- if(p.failed) fail('Jogador falido.');
+ if(p.failed && b.kind!=='end') fail('Jogador falido.');
  let from,to,amount=0,label;
  if(b.kind==='end') { if(actor!==s.host) fail('Somente quem criou a partida pode encerrá-la.',403); s.ended=true; label='Partida encerrada'; }
  else if(b.kind==='bankrupt') { from=p; amount=p.balance; p.balance=0; p.failed=true; label='Falência'; }
