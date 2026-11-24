@@ -11,7 +11,7 @@ export function addPlayer(state,name,id,token,profile={}) {
  if(state.players.some(p=>p.name.toLocaleLowerCase('pt-BR')===name.toLocaleLowerCase('pt-BR'))) fail('Este nome já está na partida.');
  const p={id,token,name,balance:state.initial,failed:false,card:colorOf(profile.card),pawn:colorOf(profile.pawn),peak:state.initial}; state.players.push(p); return p;
 }
-export function snapshot(s) { return {code:s.code,initial:s.initial,host:s.host,ended:s.ended,revision:s.revision,players:s.players.map(({token,...p})=>p),auction:s.auction??null,serverNow:Date.now(),transactions:s.transactions.slice(-100).reverse()}; }
+export function snapshot(s) { return {code:s.code,initial:s.initial,host:s.host,ended:s.ended,revision:s.revision,players:s.players.map(({token,...p})=>p),auction:s.auction??null,winner:s.winner??null,endedAt:s.endedAt??null,serverNow:Date.now(),transactions:s.transactions.slice(-100).reverse()}; }
 export function move(s,actor,b,now=Date.now()) {
  const p=player(s,actor);
  if(typeof b.requestId!=='string'||!/^[a-zA-Z0-9-]{16,80}$/.test(b.requestId)) fail('Identificador inválido.');
@@ -19,7 +19,7 @@ export function move(s,actor,b,now=Date.now()) {
  if(s.ended) fail('Partida encerrada.');
  if(p.failed && b.kind!=='end') fail('Jogador falido.');
  let from,to,amount=0,label;
- if(b.kind==='end') { if(s.auction?.status==='active') fail('Aguarde o leilão terminar.'); if(actor!==s.host) fail('Somente quem criou a partida pode encerrá-la.',403); s.ended=true; label='Partida encerrada'; }
+ if(b.kind==='end') { if(s.auction?.status==='active') fail('Aguarde o leilão terminar.'); if(actor!==s.host) fail('Somente quem criou a partida pode encerrá-la.',403); s.ended=true;s.endedAt=now; label='Partida encerrada'; }
  else if(b.kind==='bankrupt') { if(s.auction?.status==='active'&&(s.auction.leader===p.id||s.auction.seller===p.id))fail('Aguarde o leilão terminar.'); from=p; amount=p.balance; p.balance=0; p.failed=true; label='Falência'; }
  else {
   amount=b.amount; if(!validAmount(amount)) fail('Valor inválido.');
@@ -37,5 +37,14 @@ export function move(s,actor,b,now=Date.now()) {
  if(to)to.peak=Math.max(previousPeak,to.balance);
  const note='';
  s.transactions.push({id:b.requestId,actor,kind:b.kind,from:from?.id??'bank',to:to?.id??'bank',fromName:from?.name??'Banco',toName:to?.name??'Banco',amount,label,note,achievement:achieved.length?{player:to.id,name:to.name,pawn:to.pawn??'blue',amount:achieved.at(-1)}:null,at:now});
- s.revision++; return true;
+ if(b.kind==='bankrupt')crownSurvivor(s,now);s.revision++; return true;
+}
+
+export function crownSurvivor(s,now=Date.now()){
+ if(s.ended||s.players.length<2)return null;
+ const alive=s.players.filter(p=>!p.failed);if(alive.length!==1)return null;
+ const p=alive[0];s.ended=true;s.endedAt=now;s.winner={id:p.id,name:p.name,pawn:p.pawn??'blue',balance:p.balance,title:'Mestre Supremo'};
+ if(s.auction?.status==='active'){s.auction.status='unsold';s.auction.closedAt=now;}
+ const t={id:'victory-'+s.code,actor:p.id,kind:'victory',from:p.id,to:p.id,fromName:p.name,toName:p.name,amount:0,label:'Mestre Supremo',winner:s.winner,at:now};
+ s.transactions.push(t);return t;
 }
