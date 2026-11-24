@@ -1,4 +1,6 @@
-# RM PIX
+# Falibank
+
+**Seu patrimônio, nossa diversão.** Banco fictício de tabuleiro, anteriormente RM PIX.
 
 Banco fictício para jogos de tabuleiro. HTML/CSS/JS, Workers, Durable Object SQLite por partida e WebSocket com hibernação. Sem dinheiro real.
 
@@ -63,3 +65,6 @@ Seis títulos exclusivos e recalculados pelo extrato durante a partida: Rei do P
 
 ## v0.6.3 — Saldo animado refinado
 Contador visual de 780 ms com aceleração e desaceleração suaves, retorno gradual à cor normal e continuidade em movimentações consecutivas. Preferência de movimento reduzido preservada. Nenhum atraso na movimentação real.
+
+## v0.7.0 — Falibank
+Nova marca visual, ícone vetorial de banco rachado, slogan, textos de entrada e celebração, painel administrativo, manifesto PWA e notificações. Mantidos o nome técnico do Worker `rmpix`, o repositório, rotas, ID e escopo do manifesto, chaves de sessão e de áudio, armazenamento, inscrições de push e Durable Objects. Sem migração nem nova configuração. A atualização de nome/ícone em atalhos já instalados depende do sistema operacional.

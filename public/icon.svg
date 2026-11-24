@@ -1,1 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="42" fill="#132540"/><path d="M52 105 95 62 140 105 122 123 95 96 70 123Z" fill="#74a9ff"/><path d="M52 87 70 69 95 94 122 69 140 87 95 132Z" fill="#fff"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+<title>Falibank — banco rachado</title>
+<rect width="192" height="192" rx="43" fill="#235dd7"/>
+<g fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+<path d="M39 72 96 40 153 72Z"/>
+<path d="M50 86v49M78 86v49M114 86v49M142 86v49M37 148h118"/>
+</g>
+<path d="m99 70-15 25 17 16-17 27 10 16" fill="none" stroke="#235dd7" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="m99 70-15 25 17 16-17 27 10 16" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

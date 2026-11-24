@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "RM PIX — Banco do jogo",
-  "short_name": "RM PIX",
+  "name": "Falibank — Seu patrimônio, nossa diversão.",
+  "short_name": "Falibank",
   "lang": "pt-BR",
   "start_url": "/",
   "display": "standalone",
@@ -9,10 +9,11 @@
   "theme_color": "#f4f7fc",
   "icons": [
     {
-      "src": "/icon.svg",
+      "src": "/icon.svg?v=7",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
     }
-  ]
+  ],
+  "description": "Banco fictício para partidas de tabuleiro."
 }
