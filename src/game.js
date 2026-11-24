@@ -1,4 +1,4 @@
-import {colorOf,milestones,reservedAuction} from '../public/theme.js';
+import {colorOf,milestones,reservedAuction,cardTitlesFor} from '../public/theme.js';
 export const MAX = 999999999999;
 export function validAmount(n) { return Number.isSafeInteger(n) && n > 0 && n <= MAX; }
 export function fail(message, status=400) { throw Object.assign(new Error(message), {status}); }
@@ -9,9 +9,9 @@ export function addPlayer(state,name,id,token,profile={}) {
  if(state.players.length>=12) fail('Sala cheia.');
  name=nameOf(name);
  if(state.players.some(p=>p.name.toLocaleLowerCase('pt-BR')===name.toLocaleLowerCase('pt-BR'))) fail('Este nome já está na partida.');
- const p={id,token,name,balance:state.initial,failed:false,card:colorOf(profile.card),pawn:colorOf(profile.pawn),peak:state.initial}; state.players.push(p); return p;
+ const p={id,token,name,balance:state.initial,failed:false,card:colorOf(profile.card),pawn:colorOf(profile.pawn),peak:state.initial}; state.players.push(p);const titles=cardTitlesFor(state.players);for(const member of state.players)member.cardTitle=titles.get(member.id);return p;
 }
-export function snapshot(s) { return {code:s.code,initial:s.initial,host:s.host,ended:s.ended,revision:s.revision,players:s.players.map(({token,...p})=>p),auction:s.auction??null,winner:s.winner??null,endedAt:s.endedAt??null,serverNow:Date.now(),transactions:s.transactions.slice(-100).reverse()}; }
+export function snapshot(s) { const titles=cardTitlesFor(s.players);return {code:s.code,initial:s.initial,host:s.host,ended:s.ended,revision:s.revision,players:s.players.map(({token,...p})=>({...p,cardTitle:titles.get(p.id)})),auction:s.auction??null,winner:s.winner??null,endedAt:s.endedAt??null,serverNow:Date.now(),transactions:s.transactions.slice(-100).reverse()}; }
 export function move(s,actor,b,now=Date.now()) {
  const p=player(s,actor);
  if(typeof b.requestId!=='string'||!/^[a-zA-Z0-9-]{16,80}$/.test(b.requestId)) fail('Identificador inválido.');

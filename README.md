@@ -40,3 +40,6 @@ Carregamento independente da liberação de áudio; revalidação na vitória e 
 
 ## v0.5.4 — Polimento
 Trilha já em reprodução não reinicia após a resposta de preload. Celebração de 44,3s (aprox. duas voltas do trecho de 22,15s), fade final, sem replay automático repetido ao reabrir a mesma carteira. Som coletivo para clientes ativos, push para inscritos; sistema operacional não permite reproduzir MP3 automaticamente em PWA fechada. Cabeçalho reduzido, controles de ativação e aviso apenas de reconexão. Falência com impacto sintetizado e animação de choque. MP3 permanece no armazenamento existente, não no GitHub.
+
+## v0.5.5 — Cartões personalizados
+Nome do titular, paródias curtas de cartões distribuídas por ID sem repetir na sala, ilustração SVG de prédios, casas e hotel com variações por cor, código da sala no canto inferior direito. Carteiras antigas recebem títulos estáveis; novos jogadores mantêm os seus durante toda a partida. Rachadura e selo de falência, coroa e contorno dourado do campeão preservados. Sem migração, arquivos externos ou alterações de saldo.

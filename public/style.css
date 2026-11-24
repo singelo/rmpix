@@ -37,3 +37,24 @@ dialog{max-height:calc(100dvh - 24px);overflow:auto;padding:24px;border-radius:2
 .soundbar{flex-wrap:wrap}.soundbar #musicStatus{flex-basis:100%;font-size:11px;color:#61728d}.gameevent #enableVictorySound{pointer-events:auto;color:#18243d;background:#ffce55;border:0;border-radius:10px;padding:10px 16px;font-weight:700;font-size:12px;margin:16px 5px 0 0}
 
 header .brand{gap:0;font-size:27px;letter-spacing:-1.4px}.adminlink{margin-left:auto}.connectionnotice{font-size:11px;color:#a16a1c;margin-left:auto}.connectionnotice:not(.hidden)+.adminlink{margin-left:4px}.walletfoot{justify-content:flex-start}.preferences{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:8px;margin:22px 0 10px}.preferences .soundbar,.preferences .notificationbar{margin:0;gap:5px;flex-direction:column;align-items:stretch}.preferences button{min-height:43px;width:100%;justify-content:center;white-space:normal;font-size:12px}.preferences small{font-size:10px;line-height:1.4;overflow-wrap:anywhere}.gameevent.victory .eventprogress{animation-duration:44.3s}.gameevent.bankrupt .eventcard{animation:boomCard .55s cubic-bezier(.15,.8,.25,1);box-shadow:0 0 42px #eb556c66,0 20px 70px #111a3266}.gameevent.bankrupt #eventIcon{animation:boomIcon .65s ease-out}@keyframes boomCard{0%{transform:scale(.65);opacity:0}25%{transform:scale(1.06) rotate(-2deg);opacity:1}40%{transform:translateX(5px) rotate(1deg)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}100%{transform:none}}@keyframes boomIcon{0%{transform:scale(.5)}35%{transform:scale(1.45)}100%{transform:scale(1)}}@media(prefers-reduced-motion:reduce){.gameevent.bankrupt .eventcard,.gameevent.bankrupt #eventIcon{animation:none}}
+
+/* v0.5.5 — Parody cards: a lightweight illustrated board-game watermark. */
+.wallet{min-height:222px;padding:22px 23px 18px;background:linear-gradient(135deg,color-mix(in srgb,var(--card-light,#4088f5) 76%,#15243e),var(--card-dark,#153d93));}
+.wallet:before,.wallet:after{display:none}
+.cardart{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;color:#fff;opacity:.19}
+.card-orbits{opacity:.52}.card-properties{opacity:.86}.card-sparks{opacity:.8}.card-chart{opacity:.76}
+.wallet[data-color=green] .card-skyline,.wallet[data-color=orange] .card-skyline{opacity:.52}
+.wallet[data-color=green] .card-properties,.wallet[data-color=red] .card-properties{opacity:1}
+.wallet[data-color=yellow] .card-chart,.wallet[data-color=purple] .card-sparks{stroke-width:1.8}
+.wallet[data-color=black] .cardart{color:#e2c88f;opacity:.23}
+.wallet[data-color=yellow]{background:linear-gradient(135deg,#a37712,#6f4b0a)}
+.wallet[data-color=orange]{background:linear-gradient(135deg,#bb6025,#813411)}
+.wallet[data-color=pink]{background:linear-gradient(135deg,#b14d89,#78224f)}
+.wallet[data-color=green]{background:linear-gradient(135deg,#21815f,#0b513c)}
+.walletbrand{align-items:flex-start;gap:12px;margin-bottom:18px;letter-spacing:0;min-width:0}
+.cardholder{flex:1;min-width:0}.cardholder strong{display:block;font-size:17px;line-height:1.15;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.3px}.wallet .cardholder small{display:block;margin-top:4px;font-size:10px;color:#fff;opacity:.8;font-weight:500;letter-spacing:.1px}
+.walletbrand .cardtitle{flex:0 0 auto;max-width:43%;font-size:10px;font-weight:850;letter-spacing:.85px;line-height:1.25;white-space:normal;overflow-wrap:normal;text-align:right;opacity:.93;color:#fff}
+.walletfoot{justify-content:flex-end;padding-top:12px;margin-top:17px}.walletfoot #roomCode{font-size:12px;font-weight:750;letter-spacing:1.4px;font-variant-numeric:tabular-nums}
+.wallet.failed .cardart{opacity:.12;color:#dbe0e9}.wallet.failed .cracklayer{z-index:2}.wallet.failed .cardtitle{color:#e5e7ed}.wallet.failed .brokenstamp{top:54%;right:16px}
+.wallet.champion{outline:2px solid #eec35b;box-shadow:0 7px 24px #d5a83d40}.wallet.champion .cardart{color:#ffe5a1;opacity:.26}.wallet.champion .cardtitle{color:#ffe5a1}
+@media(max-width:360px){.wallet{padding:18px 17px 15px}.walletbrand{gap:8px}.cardholder strong{font-size:15px}.walletbrand .cardtitle{font-size:9px;letter-spacing:.5px}.wallet.failed .brokenstamp{font-size:13px;padding:5px 7px;right:12px}}
