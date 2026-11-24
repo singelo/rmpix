@@ -1,13 +1,13 @@
 {
   "name": "rmpix",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "test": "node --test",
-    "check": "node --check src/worker.js && node --check public/app.js && node --check public/sw.js && node --check src/push.js && node --check public/theme.js && node --check src/auction.js && node --check src/directory.js && node --check src/history.js && node --check public/admin.js && node --check public/sound.js && node --check src/victory-audio.js && node --check src/achievements.js && node --check public/awards.js && node --check public/mobile-forms.js && node --test"
+    "check": "node --check src/worker.js && node --check public/app.js && node --check public/sw.js && node --check src/push.js && node --check public/theme.js && node --check src/auction.js && node --check src/directory.js && node --check src/history.js && node --check public/admin.js && node --check public/sound.js && node --check src/victory-audio.js && node --check src/achievements.js && node --check public/awards.js && node --check public/mobile-forms.js && node --check public/activity.js && node --test"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"

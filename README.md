@@ -83,3 +83,6 @@ Seletores nativos de Pix/Banco substituídos por opções inline acessíveis, se
 
 ## v0.7.5 — Avisos puláveis
 Toque no fundo do aviso ou na indicação de continuar para dispensar o evento atual. A fila avança para o próximo evento sem aguardar o tempo restante. O toque é consumido pela camada de aviso e não aciona controles atrás. Escape também fecha o aviso quando não há formulário modal aberto. A comemoração final continua tocando normalmente até ser dispensada neste aparelho; histórico e notificações dos demais jogadores não são afetados.
+
+## v0.7.6 — Extrato limpo
+A aba Partida abre em Movimentações: Pix, pagamentos, recebimentos, compras em leilão (imóvel, lance e total), leilões sem venda, falências e encerramento. Conquistas, títulos, alertas e marcos em aba separada, mantendo popups, notificações e ranking. As duas abas usam as últimas 100 ocorrências do snapshot, como antes; painel admin mantém extrato completo e histórico de conquistas separado. Horários locais. Sem novos campos de motivo, nenhuma mudança financeira.
