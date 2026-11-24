@@ -55,3 +55,5 @@ Removidas as sombras externas do peão no cartão, inclusive nos estados falido 
 
 ## v0.6 — Rivalidade
 19 conquistas por extrato completo, uma vez por jogador; alerta de miséria abaixo de 10%, recuperação, Pix, leilões e falências. Um aviso extra destacado por atualização; selos na classificação. Saldo animado 380ms, últimos lances e aviso de oferta superada, retrospectiva e Hall da Fama/Vergonha no admin. Apelidos iguais agrupados sem identidade verificada; somente salas catalogadas encerradas. Estatísticas de dinheiro, não patrimônio físico. Sem migração ou dependências.
+
+O Hall também calcula o tempo acumulado abaixo de 10% do saldo inicial em partidas encerradas, usando os horários registrados das transações. Falência encerra a contagem; tempo após falir não conta.
