@@ -21,5 +21,6 @@
         "Room"
       ]
     }
-  ]
+  ],
+  "workers_dev": true
 }
