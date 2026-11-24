@@ -1,16 +1,30 @@
 import {gameStats,attachAwards} from './achievements.js';
-import {colorOf,milestones,reservedAuction,cardTitlesFor} from '../public/theme.js';
+import {PAWN_COLORS,CARD_COLORS,MAX_PLAYERS,pawnSlot,milestones,reservedAuction,cardTitlesFor} from '../public/theme.js';
 export const MAX = 999999999999;
 export function validAmount(n) { return Number.isSafeInteger(n) && n > 0 && n <= MAX; }
 export function fail(message, status=400) { throw Object.assign(new Error(message), {status}); }
 export function nameOf(n) { const s=typeof n==='string'?n.trim():''; if(!s||s.length>30) fail('Informe um nome de até 30 caracteres.'); return s; }
 export function player(state,id) { const p=state.players.find(p=>p.id===id); if(!p) fail('Jogador não encontrado.',404); return p; }
-export function addPlayer(state,name,id,token,profile={}) {
- if(state.ended) fail('Partida encerrada.');
- if(state.players.length>=12) fail('Sala cheia.');
+export function profileAvailability(state){
+ const pawns=[...new Set(state.players.map(p=>pawnSlot(p.pawn)))].filter(c=>PAWN_COLORS.includes(c));
+ const cards=[...new Set(state.players.map(p=>p.card))].filter(c=>CARD_COLORS.includes(c));
+ return {pawns,cards,ended:!!state.ended,full:state.players.length>=MAX_PLAYERS||pawns.length===PAWN_COLORS.length||cards.length===CARD_COLORS.length,count:state.players.length,limit:MAX_PLAYERS,revision:state.revision??0};
+}
+export function validateProfile(state,profile){
+ const a=profileAvailability(state);
+ if(a.ended)fail('Partida encerrada.',409);
+ if(a.full)fail('Sala lotada. Limite de seis jogadores.',409);
+ if(!profile||!PAWN_COLORS.includes(profile.pawn))fail('Escolha um peão disponível.');
+ if(!CARD_COLORS.includes(profile.card))fail('Escolha um cartão disponível.');
+ if(a.pawns.includes(profile.pawn))fail('Este peão já foi escolhido por outro jogador.',409);
+ if(a.cards.includes(profile.card))fail('Este cartão já foi escolhido por outro jogador.',409);
+ return {pawn:profile.pawn,card:profile.card};
+}
+export function addPlayer(state,name,id,token,profile) {
+ const selected=validateProfile(state,profile);
  name=nameOf(name);
  if(state.players.some(p=>p.name.toLocaleLowerCase('pt-BR')===name.toLocaleLowerCase('pt-BR'))) fail('Este nome já está na partida.');
- const p={id,token,name,balance:state.initial,failed:false,card:colorOf(profile.card),pawn:colorOf(profile.pawn),peak:state.initial}; state.players.push(p);const titles=cardTitlesFor(state.players);for(const member of state.players)member.cardTitle=titles.get(member.id);return p;
+ const p={id,token,name,balance:state.initial,failed:false,card:selected.card,pawn:selected.pawn,peak:state.initial}; state.players.push(p);const titles=cardTitlesFor(state.players);for(const member of state.players)member.cardTitle=titles.get(member.id);return p;
 }
 export function snapshot(s) { const titles=cardTitlesFor(s.players);return {stats:gameStats(s),code:s.code,initial:s.initial,host:s.host,ended:s.ended,revision:s.revision,players:s.players.map(({token,...p})=>({...p,cardTitle:titles.get(p.id)})),auction:s.auction??null,winner:s.winner??null,endedAt:s.endedAt??null,serverNow:Date.now(),transactions:s.transactions.slice(-100).reverse()}; }
 export function move(s,actor,b,now=Date.now()) {

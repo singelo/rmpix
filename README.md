@@ -68,3 +68,6 @@ Contador visual de 780 ms com aceleração e desaceleração suaves, retorno gra
 
 ## v0.7.0 — Falibank
 Nova marca visual, ícone vetorial de banco rachado, slogan, textos de entrada e celebração, painel administrativo, manifesto PWA e notificações. Mantidos o nome técnico do Worker `rmpix`, o repositório, rotas, ID e escopo do manifesto, chaves de sessão e de áudio, armazenamento, inscrições de push e Durable Objects. Sem migração nem nova configuração. A atualização de nome/ícone em atalhos já instalados depende do sistema operacional.
+
+## v0.7.1 — Peões e cartões exclusivos
+Seis peões oficiais (branco, preto, vermelho, amarelo, azul escuro e verde) e seis cartões (preto, marrom, vinho, verde, roxo e azul). GET /api/:code/availability fornece somente ocupação, contagem e estado da sala. Consulta de entrada com atualização a cada 2,5 s, opções ocupadas desabilitadas; validação atômica no Durable Object antes de gravar, máximo seis jogadores. Falidos e desconectados mantêm escolhas. Salas legadas preservam jogadores, cores e tokens; azul antigo de peão reserva azul escuro. Partidas encerradas não aceitam novas entradas. Sem migração ou dependências.

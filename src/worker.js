@@ -2,7 +2,7 @@ import { DurableObject } from 'cloudflare:workers';
 import {ROOM_CODE,summarize} from './history.js';
 import {AUDIO_LIMIT} from './victory-audio.js';
 export {Directory} from './directory.js';
-import {addPlayer,move,snapshot,validAmount,fail} from './game.js';
+import {addPlayer,move,snapshot,validAmount,fail,profileAvailability,validateProfile} from './game.js';
 import {openAuction,bid,finishAuction} from './auction.js';
 import {generateVapid,validSubscription,sendPush,pushEvent} from './push.js';
 const json=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store'}});
@@ -31,9 +31,10 @@ export default {async fetch(req,env){
  }
  if(req.method==='POST'&&url.pathname==='/api/create'){
   const b=await body(req).catch(()=>null);if(!b||!validAmount(b.initial)||typeof b.name!=='string'||!b.name.trim()||b.name.trim().length>30)return json({error:'Informe nome e saldo inicial válidos.'},400);
+  try{validateProfile({players:[]},b)}catch(e){return json({error:e.message},e.status||400)}
   const allocation=await dir(env,'/allocate',{});if(!allocation.ok)return json({error:'Não foi possível gerar a sala.'},503);const {code:key}=await allocation.json();return room(env,key).fetch(new Request(new URL('/api/'+key+'/create',url),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}));
  }
- const m=url.pathname.match(/^\/api\/(BR[0-9]{3,12}|[A-Z2-9]{8})\/(join|state|move|ws|push-key|subscribe|push-test|auction-open|auction-bid|victory-audio)$/);
+ const m=url.pathname.match(/^\/api\/(BR[0-9]{3,12}|[A-Z2-9]{8})\/(join|availability|state|move|ws|push-key|subscribe|push-test|auction-open|auction-bid|victory-audio)$/);
  if(!m)return json({error:'Rota inválida.'},404);
  return env.ROOMS.get(env.ROOMS.idFromName(m[1])).fetch(req);
 }};
@@ -62,6 +63,7 @@ export class Room extends DurableObject {
     addPlayer(s,b.name,id,token,b);this.save(s);return json({id,token,state:snapshot(s)});
    }
    if(!s)fail('Partida não encontrada.',404);
+   if(action==='availability'){if(req.method!=='GET')fail('Método inválido.',405);return json(profileAvailability(s));}
    if(!/^BR[0-9]+$/.test(s.code))this.ctx.waitUntil(this.registerLegacy(s).catch(e=>console.warn('Histórico legado',e.message)));
    const origin=new URL(req.url).origin;const closed=finishAuction(s);if(closed){this.save(s);this.broadcast(s);this.ctx.waitUntil(this.notify(closed,s.origin??origin));}
    if(action==='join'&&req.method==='POST'){
