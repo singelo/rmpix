@@ -71,3 +71,6 @@ Nova marca visual, ícone vetorial de banco rachado, slogan, textos de entrada e
 
 ## v0.7.1 — Peões e cartões exclusivos
 Seis peões oficiais (branco, preto, vermelho, amarelo, azul escuro e verde) e seis cartões (preto, marrom, vinho, verde, roxo e azul). GET /api/:code/availability fornece somente ocupação, contagem e estado da sala. Consulta de entrada com atualização a cada 2,5 s, opções ocupadas desabilitadas; validação atômica no Durable Object antes de gravar, máximo seis jogadores. Falidos e desconectados mantêm escolhas. Salas legadas preservam jogadores, cores e tokens; azul antigo de peão reserva azul escuro. Partidas encerradas não aceitam novas entradas. Sem migração ou dependências.
+
+## v0.7.2 — Bandeiras Falibank
+Somente VISA SEM LIMITE, AMERICAN DEPRESS, MASTERCALOTE, PLATINUM SERASA e BLACK LISO. Distribuição estável, sem repetição entre os cinco primeiros jogadores; o sexto repete uma bandeira, nunca a cor. Nomes antigos são substituídos na apresentação sem alterar saldos, identidade ou sessão.

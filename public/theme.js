@@ -18,27 +18,24 @@ export const AUCTION_PREP_MS=20000, AUCTION_BID_MS=8000;
 export function auctionTotal(a,bid=a.highest){return (a.pricing==='base-plus-bid'?a.value:0)+bid}
 export function reservedAuction(a,id){return a?.status==='active'&&a.leader===id?auctionTotal(a):0}
 
-// Paródias curtas, sem logos de bandeiras reais. O sorteio é estável por ID
-// e evita repetição dentro da mesma sala, inclusive para carteiras antigas.
+// Cinco bandeiras fictícias, independentes da cor exclusiva do cartão.
 export const CARD_TITLES=Object.freeze([
- 'VISA INFINITO','AMERICAN EXPRESSO','BLACK DO BAIRRO','GOLD NO GRITO',
- 'MASTER DOS LOTES','VISA FIADO','BLACK LISO','PLATINA FIADO',
- 'GOLD DE PLÁSTICO','PIX SEM FREIO','BLACK DO IPTU','MASTER MANSÃO',
- 'VISA SEM FUNDO','BLACK BOLETO','GOLD DO ALUGUEL','PLATINUM DA FIRMA'
+ 'VISA SEM LIMITE','AMERICAN DEPRESS','MASTERCALOTE','PLATINUM SERASA','BLACK LISO'
 ]);
 export function cardTitlesFor(players){
- const used=new Set(),result=new Map();
+ const counts=new Map(CARD_TITLES.map(t=>[t,0])),result=new Map();
  for(const p of players){
+  const min=Math.min(...counts.values());
   let title=p.cardTitle;
-  if(!CARD_TITLES.includes(title)||used.has(title)){
+  if(!counts.has(title)||counts.get(title)!==min){
    let hash=2166136261;
-   for(const ch of String(p.id)){hash=Math.imul(hash^ch.charCodeAt(0),16777619)>>>0}
+   for(const ch of String(p.id))hash=Math.imul(hash^ch.charCodeAt(0),16777619)>>>0;
    for(let i=0;i<CARD_TITLES.length;i++){
     const candidate=CARD_TITLES[(hash+i)%CARD_TITLES.length];
-    if(!used.has(candidate)){title=candidate;break}
+    if(counts.get(candidate)===min){title=candidate;break}
    }
   }
-  used.add(title);result.set(p.id,title);
+  counts.set(title,counts.get(title)+1);result.set(p.id,title);
  }
  return result;
 }
