@@ -1,4 +1,4 @@
-import {combineHall,AWARDS,awardType,titleValue} from './awards.js?v=6.2';
+import {combineHall,AWARDS,awardType,titleValue} from './awards.js?v=7.3';
 const $=id=>document.getElementById(id),money=n=>'$ '+Number(n).toLocaleString('pt-BR'),date=n=>n?new Date(n).toLocaleString('pt-BR'):'Não registrada',show=(el,yes)=>el.classList.toggle('hidden',!yes);
 let secret='',next=null,busy=false;
 function node(tag,cls,text){const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el}

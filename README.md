@@ -74,3 +74,6 @@ Seis peões oficiais (branco, preto, vermelho, amarelo, azul escuro e verde) e s
 
 ## v0.7.2 — Bandeiras Falibank
 Somente VISA SEM LIMITE, AMERICAN DEPRESS, MASTERCALOTE, PLATINUM SERASA e BLACK LISO. Distribuição estável, sem repetição entre os cinco primeiros jogadores; o sexto repete uma bandeira, nunca a cor. Nomes antigos são substituídos na apresentação sem alterar saldos, identidade ou sessão.
+
+## v0.7.3 — Rivalidade financeira
+10 títulos exclusivos (quatro novos: Mão Pesada, Tubarão do Mercado, Amigo do Gerente, Ímã de Pix), 18 conquistas pessoais (Influência S.A. e Mecenas novas), três alertas (Miséria, Recuperação Judicial e Rombo no Caixa). Os dois novos alertas são únicos por jogador/partida. Recuperação exige passagem por menos de 10% e posterior saldo de pelo menos 50% do inicial; rombo exige saída de pelo menos metade do saldo anterior e um quarto do inicial. Critérios calculados pelo extrato, sem inventário imobiliário. Apenas um destaque adicional por operação; primeiras lideranças secundárias ficam no histórico, evitando spam. Sem mudanças financeiras, migrações ou dependências.

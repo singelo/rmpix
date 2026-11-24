@@ -94,3 +94,5 @@ header .falibrand{font-size:32px;font-weight:850;letter-spacing:-1.9px;line-heig
 
 /* Official six-colour selections, separate for pawns and cards. */
 .swatches{grid-template-columns:repeat(3,minmax(0,1fr))}.swatch{min-height:64px;font-size:11px;position:relative}.swatch:disabled{cursor:default;opacity:.52}.swatch.occupied{border-style:dashed;background:#f1f3f6;opacity:.7}.swatch.occupied .pawn,.swatch.occupied .cardchip{filter:grayscale(1);opacity:.45}.occupied-label{font-size:9px;font-weight:700;color:#64748b}.entryavailability{font-size:12px;margin:0 0 13px;color:#526780;line-height:1.35}.wallet[data-color=brown]{background:linear-gradient(135deg,#8b5734,#452416)}.wallet[data-color=wine]{background:linear-gradient(135deg,#9c3153,#471429)}.wallet.failed[data-color]{background:linear-gradient(135deg,#41495b,#202631)}
+
+.gameevent.crash .eventcard{background:linear-gradient(145deg,#8c273c,#321723);border:1px solid #ff9ca8}.gameevent.crash #eventTag{color:#ffb0a7}.gameevent.rescue .eventcard{background:linear-gradient(145deg,#267d58,#15392c);border:1px solid #8bf5b8}.gameevent.rescue #eventTag{color:#a6ffd2}
