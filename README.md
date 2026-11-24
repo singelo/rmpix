@@ -34,3 +34,6 @@ Efeitos originais sintetizados por Web Audio, sem arquivos externos: Pix, banco,
 
 ## v0.5.2 — Trilha de vitória
 No painel /admin, configure um trecho MP3 autorizado de até 1 MiB. O arquivo fica no SQLite do Directory, fora do GitHub, e é acessado por jogadores autenticados. Decodificação local, duração entre 1 e 120s; recomenda-se um trecho curto de 8–12s. Reabre-se a aplicação para atualizar a trilha em todos os dispositivos. Vitória dura 24s, áudio em loop e botão Voltar ao jogo interrompe a reprodução local. Sem arquivo, fanfarra original repetida. Respeita som desativado, modo silencioso e restrições de reprodução do navegador; não toca com aplicativo fechado. Não inclui gravações comerciais.
+
+## v0.5.3 — Reprodução móvel
+Carregamento independente da liberação de áudio; revalidação na vitória e ao voltar à aplicação; desbloqueio por toque; botão Testar música reproduz a trilha cadastrada por 8s, com status do arquivo e do contexto de áudio. Botão Tocar música se autoplay bloqueado. Ganho dedicado à música. Não exige recadastrar MP3. Modo silencioso e autoplay continuam sob controle do dispositivo.

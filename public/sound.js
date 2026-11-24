@@ -32,7 +32,7 @@ function initPreference(){if(initialized)return;initialized=true;try{enabled=loc
 export function soundEnabled(){initPreference();return enabled}
 export function unlockSound(){
  initPreference();if(!enabled)return;
- try{const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return;if(!ctx){ctx=new Audio();master=ctx.createGain();master.gain.value=.16;master.connect(ctx.destination)}if(ctx.state!=='running')return ctx.resume().catch(()=>{})}catch{}
+ try{const ac=ensureContext();if(!ac)return;if(ac.state!=='running')return ac.resume().catch(()=>{})}catch{}
 }
 export function setSound(on){initPreference();enabled=!!on;try{localStorage.setItem('rmpix-sound',enabled?'on':'off')}catch{}if(master&&ctx)master.gain.setValueAtTime(enabled?.16:0,ctx.currentTime);if(!enabled)stopVictory();if(enabled)return unlockSound()}
 export function playSound(name){
@@ -43,17 +43,42 @@ export function playSound(name){
  }return true}catch{return false}
 }
 
-let victoryBuffer=null,victorySource=null,victoryGain=null,victorySession=null,loading=null,loopTimer=null,loopUntil=0;
+let clip=null,clipSession=null,loading=null,checkedAt=0,clipStatus='not-loaded';
+let source=null,musicGain=null,fallbackTimer=null,endTimer=null,until=0,run=0;
 export const VICTORY_DURATION=24000;
-export function preloadVictory(code,token){
- const key=code+':'+token;if(victorySession!==key){stopVictory();victorySession=key;victoryBuffer=null;loading=null}
- if(victoryBuffer||loading)return loading;
- const current=key;
- loading=(async()=>{try{if(!ctx)return;const r=await fetch('/api/'+code+'/victory-audio',{headers:{Authorization:'Bearer '+token},cache:'no-store'});if(!r.ok)return;const bytes=await r.arrayBuffer();if(bytes.byteLength>1048576)return;const decoded=await ctx.decodeAudioData(bytes);if(victorySession===current&&decoded.duration>=1&&decoded.duration<=120)victoryBuffer=decoded}catch{}finally{if(victorySession===current)loading=null}})();return loading
+export const audioStatus=()=>({state:ctx?.state??'not-started',clip:clipStatus,enabled:soundEnabled()});
+function ensureContext(){
+ const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return null;
+ if(!ctx){ctx=new Audio();master=ctx.createGain();master.gain.value=soundEnabled()?.16:0;master.connect(ctx.destination)}return ctx;
 }
-export function stopVictory(){clearInterval(loopTimer);loopTimer=null;loopUntil=0;if(victorySource){try{victorySource.stop();victorySource.disconnect();victoryGain?.disconnect()}catch{}victorySource=null;victoryGain=null}}
-export function playVictory(duration=VICTORY_DURATION){stopVictory();if(!soundEnabled()||!ctx||ctx.state!=='running'||document.hidden)return false;
- if(victoryBuffer){try{victorySource=ctx.createBufferSource();victoryGain=ctx.createGain();victoryGain.gain.value=.9;victorySource.buffer=victoryBuffer;victorySource.loop=true;victorySource.connect(victoryGain);victoryGain.connect(master);victorySource.start();victorySource.stop(ctx.currentTime+duration/1000);return true}catch{stopVictory()}}
- // Repeat only the original short game fanfare if no authorized clip is configured.
- playSound('victory');loopUntil=Date.now()+duration;loopTimer=setInterval(()=>{if(Date.now()>=loopUntil||!soundEnabled()||document.hidden){stopVictory();return}playSound('victory')},1800);return true
+export function preloadVictory(code,token,{force=false}={}){
+ if(!code||!token)return Promise.resolve('not-loaded');
+ const key=code+':'+token;
+ if(clipSession!==key){stopVictory();clipSession=key;clip=null;loading=null;checkedAt=0;clipStatus='not-loaded'}
+ if(loading)return loading;
+ if(!force&&checkedAt&&Date.now()-checkedAt<60000)return Promise.resolve(clipStatus);
+ clipStatus='loading';
+ const job=Promise.resolve().then(async()=>{
+ try{const r=await fetch('/api/'+encodeURIComponent(code)+'/victory-audio',{headers:{Authorization:'Bearer '+token},cache:'no-store'});
+ if(clipSession!==key)return 'not-loaded';
+ if(r.status===404){clip=null;return clipStatus='not-configured'}if(!r.ok)throw Error('HTTP '+r.status);
+ const bytes=await r.arrayBuffer();if(bytes.byteLength>1048576)throw Error('Arquivo acima de 1 MiB');
+ const ac=ensureContext();if(!ac)throw Error('Áudio indisponível');const decoded=await ac.decodeAudioData(bytes);
+ if(clipSession!==key)return 'not-loaded';if(decoded.duration<1||decoded.duration>120)throw Error('Duração inválida');
+ clip=decoded;return clipStatus='ready';
+ }catch(e){if(clipSession===key){clipStatus='error: '+e.message;return clipStatus}return 'not-loaded'}
+ }).finally(()=>{if(clipSession===key&&loading===job){loading=null;checkedAt=Date.now()}});
+ loading=job;return job;
+}
+function clearPlayback(){clearInterval(fallbackTimer);fallbackTimer=null;if(source){try{source.stop()}catch{}try{source.disconnect()}catch{}source=null}if(musicGain){try{musicGain.disconnect()}catch{}musicGain=null}}
+export function stopVictory(){run++;until=0;clearTimeout(endTimer);endTimer=null;clearPlayback()}
+function startClip(ms){if(!clip||!ctx||ctx.state!=='running')return false;try{clearPlayback();source=ctx.createBufferSource();musicGain=ctx.createGain();musicGain.gain.value=.7;source.buffer=clip;source.loop=true;source.connect(musicGain);musicGain.connect(ctx.destination);source.start();source.stop(ctx.currentTime+ms/1000);return true}catch{clearPlayback();return false}}
+function fallback(){if(fallbackTimer)return;playSound('victory');fallbackTimer=setInterval(()=>{if(Date.now()>=until||!soundEnabled()||document.hidden){stopVictory();return}playSound('victory')},1800)}
+export function resumeVictory(){const remaining=until-Date.now();if(remaining<=0||!soundEnabled()||!ctx||ctx.state!=='running'||document.hidden)return false;if(source)return true;if(!startClip(remaining))fallback();return true}
+export function playVictory(duration=VICTORY_DURATION,code,token){
+ // Resolve a new session before starting a timed celebration.
+ if(code&&token&&clipSession!==code+':'+token)void preloadVictory(code,token);
+ stopVictory();if(!soundEnabled()||document.hidden)return false;until=Date.now()+duration;const id=run;endTimer=setTimeout(()=>{if(run===id)stopVictory()},duration);
+ if(code&&token)preloadVictory(code,token,{force:true}).then(status=>{if(run!==id||until<=Date.now()||!soundEnabled()||document.hidden)return;if(status==='ready'&&ctx?.state==='running')startClip(until-Date.now())});
+ return resumeVictory();
 }
