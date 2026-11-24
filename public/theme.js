@@ -3,3 +3,6 @@ export const MARKS=[30000,40000,50000,75000,100000,150000,250000,500000,1000000]
 export const TITLES={30000:'Começou a lucrar',40000:'Investidor',50000:'Magnata',75000:'Tubarão dos negócios',100000:'Rei do tabuleiro',150000:'Lenda da partida',250000:'Império financeiro',500000:'Mestre dos negócios',1000000:'Milionário'};
 export function milestones(previous,next){return MARKS.filter(n=>n>previous&&n<=next)}
 export function colorOf(value){return Object.hasOwn(COLORS,value)?value:'blue'}
+
+// O valor do próximo lance é o total atual mais 20% do preço original.
+export function nextBid(auction){return (auction.highest||0)+Math.ceil(auction.value/5)}
