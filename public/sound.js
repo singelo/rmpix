@@ -6,12 +6,12 @@ export const CUES=Object.freeze({
  bank:[[440,.08,0,'triangle',.6],[660,.14,.09,'sine',.5]],
  auctionOpen:[[392,.12,0,'triangle',.65],[523,.12,.13,'triangle',.65],[784,.2,.26,'sine',.65]],
  auctionStart:[[660,.09,0,'triangle',.6],[990,.2,.12,'triangle',.65]],
- bid:[[800,.065,0,'triangle',.55],[1100,.1,.065,'sine',.5]],
+ bid:[[520,.065,0,'triangle',.7],[880,.075,.055,'triangle',.65],[1175,.12,.12,'sine',.5]],
  tick:[[740,.055,0,'sine',.45]],
  finalTick:[[1040,.09,0,'triangle',.5]],
- sold:[[180,.12,0,'triangle',.8,70],[523,.09,.13,'triangle',.5],[784,.2,.23,'sine',.6]],
+ sold:[[220,.09,0,'triangle',.85,65],[135,.15,.11,'triangle',.75,45],[523,.1,.25,'triangle',.55],[784,.22,.36,'sine',.65]],
  unsold:[[440,.12,0,'sine',.45],[330,.18,.12,'sine',.5]],
- bankrupt:[[140,.35,0,'sawtooth',.35,48],[220,.16,.07,'triangle',.5,80],[100,.27,.31,'triangle',.5,45]],
+ bankrupt:[[110,.72,0,'sine',1,35],[180,.42,0,'triangle',.8,42],[330,.32,.018,'sawtooth',.48,48],[85,.5,.16,'triangle',.7,28],[196,.18,.66,'triangle',.65],[147,.35,.86,'triangle',.55,73]],
  achievement:[[523,.11,0,'triangle',.55],[659,.11,.11,'triangle',.55],[784,.12,.22,'triangle',.6],[1047,.3,.34,'sine',.65]],
  victory:[[392,.14,0,'triangle',.6],[523,.14,.15,'triangle',.6],[659,.14,.30,'triangle',.65],[784,.15,.45,'triangle',.65],[1047,.48,.62,'triangle',.65],[523,.48,.62,'sine',.35],[659,.48,.62,'sine',.35]],
  end:[[523,.12,0,'sine',.5],[392,.2,.12,'sine',.5]]
@@ -37,7 +37,7 @@ export function unlockSound(){
 export function setSound(on){initPreference();enabled=!!on;try{localStorage.setItem('rmpix-sound',enabled?'on':'off')}catch{}if(master&&ctx)master.gain.setValueAtTime(enabled?.16:0,ctx.currentTime);if(!enabled)stopVictory();if(enabled)return unlockSound()}
 export function playSound(name){
  if(!soundEnabled()||!ctx||ctx.state!=='running'||document.hidden||!CUES[name])return false;
- try{const start=ctx.currentTime+.008;for(const [hz,duration,offset,type,vol,endHz] of CUES[name]){
+ try{const start=ctx.currentTime+.008;if(name==='bankrupt')playImpact(start);for(const [hz,duration,offset,type,vol,endHz] of CUES[name]){
  const osc=ctx.createOscillator(),gain=ctx.createGain(),at=start+offset;osc.type=type;osc.frequency.setValueAtTime(hz,at);if(endHz)osc.frequency.exponentialRampToValueAtTime(endHz,at+duration);
  gain.gain.setValueAtTime(.0001,at);gain.gain.exponentialRampToValueAtTime(Math.max(.001,vol*.45),at+.012);gain.gain.exponentialRampToValueAtTime(.0001,at+duration);osc.connect(gain);gain.connect(master);osc.start(at);osc.stop(at+duration+.02);osc.onended=()=>{osc.disconnect();gain.disconnect()};
  }return true}catch{return false}
@@ -45,7 +45,7 @@ export function playSound(name){
 
 let clip=null,clipSession=null,loading=null,checkedAt=0,clipStatus='not-loaded';
 let source=null,musicGain=null,fallbackTimer=null,endTimer=null,until=0,run=0;
-export const VICTORY_DURATION=24000;
+export const VICTORY_DURATION=44300;
 export const audioStatus=()=>({state:ctx?.state??'not-started',clip:clipStatus,enabled:soundEnabled()});
 function ensureContext(){
  const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return null;
@@ -72,13 +72,21 @@ export function preloadVictory(code,token,{force=false}={}){
 }
 function clearPlayback(){clearInterval(fallbackTimer);fallbackTimer=null;if(source){try{source.stop()}catch{}try{source.disconnect()}catch{}source=null}if(musicGain){try{musicGain.disconnect()}catch{}musicGain=null}}
 export function stopVictory(){run++;until=0;clearTimeout(endTimer);endTimer=null;clearPlayback()}
-function startClip(ms){if(!clip||!ctx||ctx.state!=='running')return false;try{clearPlayback();source=ctx.createBufferSource();musicGain=ctx.createGain();musicGain.gain.value=.7;source.buffer=clip;source.loop=true;source.connect(musicGain);musicGain.connect(ctx.destination);source.start();source.stop(ctx.currentTime+ms/1000);return true}catch{clearPlayback();return false}}
+function startClip(ms){if(source)return true;if(!clip||!ctx||ctx.state!=='running'||ms<=0)return false;try{clearPlayback();source=ctx.createBufferSource();musicGain=ctx.createGain();const start=ctx.currentTime,stop=start+ms/1000;musicGain.gain.setValueAtTime(.7,start);musicGain.gain.setValueAtTime(.7,Math.max(start,stop-.45));musicGain.gain.linearRampToValueAtTime(0,stop);source.buffer=clip;source.loop=true;source.connect(musicGain);musicGain.connect(ctx.destination);source.start();source.stop(stop);return true}catch{clearPlayback();return false}}
 function fallback(){if(fallbackTimer)return;playSound('victory');fallbackTimer=setInterval(()=>{if(Date.now()>=until||!soundEnabled()||document.hidden){stopVictory();return}playSound('victory')},1800)}
 export function resumeVictory(){const remaining=until-Date.now();if(remaining<=0||!soundEnabled()||!ctx||ctx.state!=='running'||document.hidden)return false;if(source)return true;if(!startClip(remaining))fallback();return true}
 export function playVictory(duration=VICTORY_DURATION,code,token){
  // Resolve a new session before starting a timed celebration.
  if(code&&token&&clipSession!==code+':'+token)void preloadVictory(code,token);
  stopVictory();if(!soundEnabled()||document.hidden)return false;until=Date.now()+duration;const id=run;endTimer=setTimeout(()=>{if(run===id)stopVictory()},duration);
- if(code&&token)preloadVictory(code,token,{force:true}).then(status=>{if(run!==id||until<=Date.now()||!soundEnabled()||document.hidden)return;if(status==='ready'&&ctx?.state==='running')startClip(until-Date.now())});
+ if(code&&token)preloadVictory(code,token,{force:!clip}).then(status=>{if(run!==id||until<=Date.now()||!soundEnabled()||document.hidden)return;if(shouldStartLoadedClip(!!source,status)&&ctx?.state==='running')startClip(until-Date.now())});
  return resumeVictory();
 }
+
+function playImpact(at){
+ // A short filtered noise transient + falling bass, synthesized locally.
+ const duration=.66,rate=ctx.sampleRate,buffer=ctx.createBuffer(1,Math.ceil(rate*duration),rate),samples=buffer.getChannelData(0);
+ let low=0,seed=17341;for(let i=0;i<samples.length;i++){seed=(Math.imul(seed,1664525)+1013904223)>>>0;const n=seed/2147483648-1;low=.89*low+.11*n;const t=i/rate;samples[i]=(low*1.4+n*.28)*Math.exp(-t*8)}
+ const burst=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();burst.buffer=buffer;filter.type='lowpass';filter.frequency.setValueAtTime(2100,at);filter.frequency.exponentialRampToValueAtTime(160,at+duration);gain.gain.value=.8;burst.connect(filter);filter.connect(gain);gain.connect(master);burst.start(at);burst.onended=()=>{burst.disconnect();filter.disconnect();gain.disconnect()}
+}
+export function shouldStartLoadedClip(isPlaying, status){return !isPlaying&&status==='ready'}

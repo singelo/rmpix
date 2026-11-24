@@ -37,3 +37,6 @@ No painel /admin, configure um trecho MP3 autorizado de até 1 MiB. O arquivo fi
 
 ## v0.5.3 — Reprodução móvel
 Carregamento independente da liberação de áudio; revalidação na vitória e ao voltar à aplicação; desbloqueio por toque; botão Testar música reproduz a trilha cadastrada por 8s, com status do arquivo e do contexto de áudio. Botão Tocar música se autoplay bloqueado. Ganho dedicado à música. Não exige recadastrar MP3. Modo silencioso e autoplay continuam sob controle do dispositivo.
+
+## v0.5.4 — Polimento
+Trilha já em reprodução não reinicia após a resposta de preload. Celebração de 44,3s (aprox. duas voltas do trecho de 22,15s), fade final, sem replay automático repetido ao reabrir a mesma carteira. Som coletivo para clientes ativos, push para inscritos; sistema operacional não permite reproduzir MP3 automaticamente em PWA fechada. Cabeçalho reduzido, controles de ativação e aviso apenas de reconexão. Falência com impacto sintetizado e animação de choque. MP3 permanece no armazenamento existente, não no GitHub.
