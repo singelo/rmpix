@@ -1,13 +1,13 @@
 {
   "name": "rmpix",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "test": "node --test",
-    "check": "node --check src/worker.js && node --check public/app.js && node --check public/sw.js && node --check src/push.js && node --check public/theme.js && node --check src/auction.js && node --check src/directory.js && node --check src/history.js && node --check public/admin.js && node --test"
+    "check": "node --check src/worker.js && node --check public/app.js && node --check public/sw.js && node --check src/push.js && node --check public/theme.js && node --check src/auction.js && node --check src/directory.js && node --check src/history.js && node --check public/admin.js && node --check public/sound.js && node --test"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"
