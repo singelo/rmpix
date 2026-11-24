@@ -1,3 +1,4 @@
+import {attachAwards} from './achievements.js';
 import {MAX,fail,player,validAmount} from './game.js';
 import {milestones,nextBid,auctionTotal,AUCTION_PREP_MS,AUCTION_BID_MS} from '../public/theme.js';
 export const PREP=AUCTION_PREP_MS, BID=AUCTION_BID_MS;
@@ -37,5 +38,5 @@ export function finishAuction(s,now=Date.now()){
  a.closedAt=now;
  const sold=a.status==='sold';
  const t={id:'auction-'+a.id,actor:a.creator,kind:sold?'auction_sale':'auction_unsold',from:sold?buyer.id:a.seller,to:a.seller,fromName:sold?buyer.name:'Sem vencedor',toName:a.sellerName,amount:sold?total:0,propertyValue:a.value,winningBid:sold?a.highest:0,pricing:a.pricing??'legacy',label:sold?'Leilão · '+a.property:'Sem venda · '+a.property,note:'',property:a.property,achievement,at:now};
- s.transactions.push(t);s.revision++;return t;
+ s.transactions.push(t);attachAwards(s,t);s.revision++;return t;
 }

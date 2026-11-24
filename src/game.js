@@ -1,3 +1,4 @@
+import {gameStats,attachAwards} from './achievements.js';
 import {colorOf,milestones,reservedAuction,cardTitlesFor} from '../public/theme.js';
 export const MAX = 999999999999;
 export function validAmount(n) { return Number.isSafeInteger(n) && n > 0 && n <= MAX; }
@@ -11,7 +12,7 @@ export function addPlayer(state,name,id,token,profile={}) {
  if(state.players.some(p=>p.name.toLocaleLowerCase('pt-BR')===name.toLocaleLowerCase('pt-BR'))) fail('Este nome já está na partida.');
  const p={id,token,name,balance:state.initial,failed:false,card:colorOf(profile.card),pawn:colorOf(profile.pawn),peak:state.initial}; state.players.push(p);const titles=cardTitlesFor(state.players);for(const member of state.players)member.cardTitle=titles.get(member.id);return p;
 }
-export function snapshot(s) { const titles=cardTitlesFor(s.players);return {code:s.code,initial:s.initial,host:s.host,ended:s.ended,revision:s.revision,players:s.players.map(({token,...p})=>({...p,cardTitle:titles.get(p.id)})),auction:s.auction??null,winner:s.winner??null,endedAt:s.endedAt??null,serverNow:Date.now(),transactions:s.transactions.slice(-100).reverse()}; }
+export function snapshot(s) { const titles=cardTitlesFor(s.players);return {stats:gameStats(s),code:s.code,initial:s.initial,host:s.host,ended:s.ended,revision:s.revision,players:s.players.map(({token,...p})=>({...p,cardTitle:titles.get(p.id)})),auction:s.auction??null,winner:s.winner??null,endedAt:s.endedAt??null,serverNow:Date.now(),transactions:s.transactions.slice(-100).reverse()}; }
 export function move(s,actor,b,now=Date.now()) {
  const p=player(s,actor);
  if(typeof b.requestId!=='string'||!/^[a-zA-Z0-9-]{16,80}$/.test(b.requestId)) fail('Identificador inválido.');
@@ -37,7 +38,7 @@ export function move(s,actor,b,now=Date.now()) {
  if(to)to.peak=Math.max(previousPeak,to.balance);
  const note='';
  s.transactions.push({id:b.requestId,actor,kind:b.kind,from:from?.id??'bank',to:to?.id??'bank',fromName:from?.name??'Banco',toName:to?.name??'Banco',amount,label,note,achievement:achieved.length?{player:to.id,name:to.name,pawn:to.pawn??'blue',amount:achieved.at(-1)}:null,at:now});
- if(b.kind==='bankrupt')crownSurvivor(s,now);s.revision++; return true;
+ const transaction=s.transactions.at(-1);if(b.kind==='bankrupt')crownSurvivor(s,now);attachAwards(s,transaction);if(s.transactions.at(-1)!==transaction)attachAwards(s,s.transactions.at(-1));s.revision++; return true;
 }
 
 export function crownSurvivor(s,now=Date.now()){
