@@ -1,5 +1,6 @@
 import { DurableObject } from 'cloudflare:workers';
 import {addPlayer,move,snapshot,validAmount,fail} from './game.js';
+import {colorOf} from '../public/theme.js';
 import {generateVapid,validSubscription,sendPush,pushEvent} from './push.js';
 const json=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store'}});
 function code(){const a=new Uint8Array(8);crypto.getRandomValues(a);return Array.from(a,b=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[b%32]).join('');}
@@ -11,7 +12,7 @@ export default {async fetch(req,env){
  if(req.method==='POST'&&url.pathname==='/api/create'){
   const key=code();return env.ROOMS.get(env.ROOMS.idFromName(key)).fetch(new Request(new URL('/api/'+key+'/create',url),req));
  }
- const m=url.pathname.match(/^\/api\/([A-Z2-9]{8})\/(join|state|move|ws|push-key|subscribe)$/);
+ const m=url.pathname.match(/^\/api\/([A-Z2-9]{8})\/(join|state|move|ws|push-key|subscribe|push-test|profile)$/);
  if(!m)return json({error:'Rota inválida.'},404);
  return env.ROOMS.get(env.ROOMS.idFromName(m[1])).fetch(req);
 }};
@@ -33,12 +34,12 @@ export class Room extends DurableObject {
     if(!validAmount(b.initial))fail('Saldo inicial inválido.');
     const id=crypto.randomUUID(),token=crypto.randomUUID();
     s={code,initial:b.initial,host:id,ended:false,revision:1,players:[],transactions:[]};
-    addPlayer(s,b.name,id,token);this.save(s);return json({id,token,state:snapshot(s)});
+    addPlayer(s,b.name,id,token,b);this.save(s);return json({id,token,state:snapshot(s)});
    }
    if(!s)fail('Partida não encontrada.',404);
    if(action==='join'&&req.method==='POST'){
     const id=crypto.randomUUID(),token=crypto.randomUUID();
-    addPlayer(s,b.name,id,token);s.revision++;this.save(s);this.broadcast(s);return json({id,token,state:snapshot(s)});
+    addPlayer(s,b.name,id,token,b);s.revision++;this.save(s);this.broadcast(s);return json({id,token,state:snapshot(s)});
    }
    if(action==='ws'&&req.headers.get('Upgrade')?.toLowerCase()==='websocket'){
     const pair=new WebSocketPair();const [client,server]=Object.values(pair);
@@ -47,6 +48,8 @@ export class Room extends DurableObject {
    }
    const token=req.headers.get('Authorization')?.replace(/^Bearer /,'');
    const p=s.players.find(p=>p.token===token);if(!p)fail('Sessão inválida.',401);
+   if(action==='profile'&&req.method==='POST'){p.card=colorOf(b.card);p.pawn=colorOf(b.pawn);s.revision++;this.save(s);this.broadcast(s);return json({state:snapshot(s)});}
+   if(action==='push-test'&&req.method==='POST'){const row=this.sql.exec('SELECT data FROM subscriptions WHERE player=?',p.id).toArray()[0];if(!row)fail('Ative as notificações primeiro.');try{const r=await sendPush(JSON.parse(row.data),await this.vapid(),{body:'Teste RM PIX: notificações funcionando!',tag:crypto.randomUUID()},new URL(req.url).origin);const reason=r.ok?'Aceito pelo serviço de push':(await r.text()).slice(0,180)||r.statusText;if(r.ok)await r.body?.cancel();return json({accepted:r.ok,status:r.status,reason})}catch(e){return json({accepted:false,status:0,reason:String(e.message).slice(0,180)})}}
    if(action==='push-key'&&req.method==='GET')return json({key:(await this.vapid()).key});
    if(action==='subscribe'&&req.method==='POST'){if(b.subscription===null)this.sql.exec('DELETE FROM subscriptions WHERE player=?',p.id);else{if(!validSubscription(b.subscription))fail('Inscrição de push inválida.');this.sql.exec('INSERT INTO subscriptions(player,data) VALUES(?,?) ON CONFLICT(player) DO UPDATE SET data=excluded.data',p.id,JSON.stringify(b.subscription));}return json({ok:true});}
    if(action==='state'&&req.method==='GET')return json({state:snapshot(s)});

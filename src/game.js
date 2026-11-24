@@ -1,14 +1,15 @@
+import {colorOf,milestones} from '../public/theme.js';
 export const MAX = 999999999999;
 export function validAmount(n) { return Number.isSafeInteger(n) && n > 0 && n <= MAX; }
 export function fail(message, status=400) { throw Object.assign(new Error(message), {status}); }
 export function nameOf(n) { const s=typeof n==='string'?n.trim():''; if(!s||s.length>30) fail('Informe um nome de até 30 caracteres.'); return s; }
 export function player(state,id) { const p=state.players.find(p=>p.id===id); if(!p) fail('Jogador não encontrado.',404); return p; }
-export function addPlayer(state,name,id,token) {
+export function addPlayer(state,name,id,token,profile={}) {
  if(state.ended) fail('Partida encerrada.');
  if(state.players.length>=12) fail('Sala cheia.');
  name=nameOf(name);
  if(state.players.some(p=>p.name.toLocaleLowerCase('pt-BR')===name.toLocaleLowerCase('pt-BR'))) fail('Este nome já está na partida.');
- const p={id,token,name,balance:state.initial,failed:false}; state.players.push(p); return p;
+ const p={id,token,name,balance:state.initial,failed:false,card:colorOf(profile.card),pawn:colorOf(profile.pawn),peak:state.initial}; state.players.push(p); return p;
 }
 export function snapshot(s) { return {code:s.code,initial:s.initial,host:s.host,ended:s.ended,revision:s.revision,players:s.players.map(({token,...p})=>p),transactions:s.transactions.slice(-100).reverse()}; }
 export function move(s,actor,b,now=Date.now()) {
@@ -31,7 +32,10 @@ export function move(s,actor,b,now=Date.now()) {
   if(from) from.balance-=amount;
   if(to) to.balance+=amount;
  }
- const note=typeof b.note==='string'?b.note.trim().slice(0,60):'';
- s.transactions.push({id:b.requestId,actor,kind:b.kind,from:from?.id??'bank',to:to?.id??'bank',fromName:from?.name??'Banco',toName:to?.name??'Banco',amount,label,note,at:now});
+ const previousPeak=to?Math.max(to.peak??s.initial,to.balance-amount):0;
+ const achieved=to?milestones(previousPeak,to.balance):[];
+ if(to)to.peak=Math.max(previousPeak,to.balance);
+ const note='';
+ s.transactions.push({id:b.requestId,actor,kind:b.kind,from:from?.id??'bank',to:to?.id??'bank',fromName:from?.name??'Banco',toName:to?.name??'Banco',amount,label,note,achievement:achieved.length?{player:to.id,name:to.name,pawn:to.pawn??'blue',amount:achieved.at(-1)}:null,at:now});
  s.revision++; return true;
 }
