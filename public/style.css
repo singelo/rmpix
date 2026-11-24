@@ -96,3 +96,43 @@ header .falibrand{font-size:32px;font-weight:850;letter-spacing:-1.9px;line-heig
 .swatches{grid-template-columns:repeat(3,minmax(0,1fr))}.swatch{min-height:64px;font-size:11px;position:relative}.swatch:disabled{cursor:default;opacity:.52}.swatch.occupied{border-style:dashed;background:#f1f3f6;opacity:.7}.swatch.occupied .pawn,.swatch.occupied .cardchip{filter:grayscale(1);opacity:.45}.occupied-label{font-size:9px;font-weight:700;color:#64748b}.entryavailability{font-size:12px;margin:0 0 13px;color:#526780;line-height:1.35}.wallet[data-color=brown]{background:linear-gradient(135deg,#8b5734,#452416)}.wallet[data-color=wine]{background:linear-gradient(135deg,#9c3153,#471429)}.wallet.failed[data-color]{background:linear-gradient(135deg,#41495b,#202631)}
 
 .gameevent.crash .eventcard{background:linear-gradient(145deg,#8c273c,#321723);border:1px solid #ff9ca8}.gameevent.crash #eventTag{color:#ffb0a7}.gameevent.rescue .eventcard{background:linear-gradient(145deg,#267d58,#15392c);border:1px solid #8bf5b8}.gameevent.rescue #eventTag{color:#a6ffd2}
+
+/* Mobile form stability: inline choices, visual viewport and portrait fallback. */
+:root{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body{max-width:100%;overscroll-behavior-x:none}
+body{overflow-x:clip}
+input:not([type=radio]):not([type=checkbox]),select,textarea{font-size:16px;min-width:0}
+.moneyfield input{font-size:28px;line-height:1.2}
+.formchoices{border:0;margin:0 0 15px;padding:0;min-width:0}
+.formchoices legend{font-size:13px;font-weight:650;color:#4e607b;margin-bottom:7px;padding:0}
+.recipientchoices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.bankchoices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.pickoption{position:relative;display:flex;align-items:center;gap:7px;min-height:48px;margin:0;padding:9px 10px;border:1px solid #dfe6ef;background:#fff;border-radius:11px;font-size:13px;letter-spacing:0;color:#172b49;cursor:pointer;touch-action:manipulation;overflow-wrap:anywhere;min-width:0}
+.pickoption input{position:absolute;width:1px;height:1px;min-height:0;padding:0;opacity:0;margin:0;pointer-events:none}
+.pickoption:has(input:checked){border-color:#235dd7;background:#edf4ff;color:#235dd7;box-shadow:inset 0 0 0 1px #235dd7}
+.pickoption:has(input:focus-visible){outline:3px solid #72a7ff;outline-offset:2px}
+.pickoption .pawn{flex:0 0 24px;width:24px;height:26px}
+.recipientname{min-width:0;overflow-wrap:anywhere}
+.fieldhint{font-size:12px;margin:4px 0}
+.dialoghead button{flex:none;min-width:44px;min-height:44px;padding:0;border-radius:10px;background:#f1f5fc;color:#526780}
+dialog[open]{overscroll-behavior:contain;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scroll-padding:12px;max-height:calc(var(--visible-height,100dvh) - 24px)}
+dialog form{min-width:0}
+dialog .quick button{min-height:44px}
+dialog .moneyfield input:focus{box-shadow:none}
+body.form-open{overscroll-behavior-y:none}
+body.keyboard-visible nav,body.editing-input nav{visibility:hidden;pointer-events:none}
+body.keyboard-visible #toast{bottom:calc(var(--keyboard-offset,0px) + 12px)}
+input{scroll-margin-block:12px}
+@media(max-width:600px),(pointer:coarse) and (max-height:600px){
+ dialog[open]{position:fixed;inset:auto 0 var(--keyboard-offset,0px);margin:0 auto;width:min(100%,520px);max-width:100%;max-height:calc(var(--visible-height,100dvh) - 8px);padding:16px 18px calc(16px + env(safe-area-inset-bottom));border-radius:22px 22px 0 0}
+ dialog .dialoghead{margin-bottom:10px}
+ dialog label:not(.pickoption){margin-bottom:12px}
+ body.keyboard-visible dialog[open]{padding-bottom:12px}
+ .recipientchoices,.bankchoices{gap:6px}
+ .pickoption{padding:8px;min-height:46px}
+}
+.portraitnotice{position:fixed;inset:0;z-index:1000;background:#f4f7fc;color:#235dd7;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;gap:8px}
+.portraitnotice strong{font-size:20px;color:#152a4b}.portraitnotice p{margin:0;font-size:14px}
+body.phone-landscape{overflow:hidden}body.phone-landscape .shell{visibility:hidden;pointer-events:none}
+dialog.orientation-blocked{visibility:hidden;pointer-events:none}
+dialog.orientation-blocked::backdrop{background:transparent}

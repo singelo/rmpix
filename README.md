@@ -77,3 +77,6 @@ Somente VISA SEM LIMITE, AMERICAN DEPRESS, MASTERCALOTE, PLATINUM SERASA e BLACK
 
 ## v0.7.3 — Rivalidade financeira
 10 títulos exclusivos (quatro novos: Mão Pesada, Tubarão do Mercado, Amigo do Gerente, Ímã de Pix), 18 conquistas pessoais (Influência S.A. e Mecenas novas), três alertas (Miséria, Recuperação Judicial e Rombo no Caixa). Os dois novos alertas são únicos por jogador/partida. Recuperação exige passagem por menos de 10% e posterior saldo de pelo menos 50% do inicial; rombo exige saída de pelo menos metade do saldo anterior e um quarto do inicial. Critérios calculados pelo extrato, sem inventário imobiliário. Apenas um destaque adicional por operação; primeiras lideranças secundárias ficam no histórico, evitando spam. Sem mudanças financeiras, migrações ou dependências.
+
+## v0.7.4 — Formulários mobile
+Seletores nativos de Pix/Banco substituídos por opções inline acessíveis, sem popover do sistema. Dialogs não abrem o teclado automaticamente; dimensionamento pela VisualViewport, navegação oculta enquanto digita, máscara monetária com cursor preservado, lances digitados preservados quando chega outro lance. Manifesto retrato; tentativa de bloqueio via Screen Orientation em PWA, proteção visual quando a rotação não é suportada. Sem alterar transações ou regras. iOS e Android reais devem ser validados.

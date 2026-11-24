@@ -1,0 +1,6 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {formatMoneyEdit,visibleFrame,nextBidInput,isPhoneLandscape} from '../public/mobile-forms.js';
+test('máscara preserva o cursor ao inserir no meio',()=>{assert.deepEqual(formatMoneyEdit('12.345',6),{text:'12.345',caret:6});assert.deepEqual(formatMoneyEdit('12345',2),{text:'12.345',caret:2});assert.deepEqual(formatMoneyEdit('12.9345',4),{text:'129.345',caret:3})});
+test('valores inteiros até doze dígitos e limpeza',()=>{assert.equal(formatMoneyEdit('R$ 00012',8).text,'12');assert.equal(formatMoneyEdit('',0).text,'');assert.equal(formatMoneyEdit('123456789012345',15).text,'123.456.789.012')});
+test('teclado e offset visível',()=>{assert.deepEqual(visibleFrame(480,30,800),{height:480,top:30,bottom:290});assert.deepEqual(visibleFrame(800,0,800),{height:800,top:0,bottom:0})});
+test('lance em edição não é substituído, novo leilão inicializa',()=>{assert.equal(nextBidInput('15.000',16000,true,false),'15.000');assert.equal(nextBidInput('15.000',16000,true,true),'16000');assert.equal(nextBidInput('15.000',16000,false,false),'16000')});
+test('orientação horizontal só em telefone',()=>{assert.equal(isPhoneLandscape(844,390,true),true);assert.equal(isPhoneLandscape(390,844,true),false);assert.equal(isPhoneLandscape(1440,900,false),false);assert.equal(isPhoneLandscape(1024,768,true),false)});

@@ -15,5 +15,6 @@
       "purpose": "any"
     }
   ],
-  "description": "Banco fictício para partidas de tabuleiro."
+  "description": "Banco fictício para partidas de tabuleiro.",
+  "orientation": "portrait"
 }
