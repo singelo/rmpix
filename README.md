@@ -43,3 +43,6 @@ Trilha já em reprodução não reinicia após a resposta de preload. Celebraç�
 
 ## v0.5.5 — Cartões personalizados
 Nome do titular, paródias curtas de cartões distribuídas por ID sem repetir na sala, ilustração SVG de prédios, casas e hotel com variações por cor, código da sala no canto inferior direito. Carteiras antigas recebem títulos estáveis; novos jogadores mantêm os seus durante toda a partida. Rachadura e selo de falência, coroa e contorno dourado do campeão preservados. Sem migração, arquivos externos ou alterações de saldo.
+
+## v0.5.6 — Peão no cartão
+Peão colorido junto ao nome do titular dentro do cartão; removida a apresentação duplicada acima da carteira e o subtítulo redundante. Peão preserva X na falência e coroa na vitória. Ajustes para nomes longos e telas estreitas; fundo cinza de falência também nas cores com gradiente específico. Sem alterações de regras ou armazenamento.
