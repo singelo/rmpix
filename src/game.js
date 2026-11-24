@@ -11,7 +11,7 @@ export function addPlayer(state,name,id,token,profile={}) {
  if(state.players.some(p=>p.name.toLocaleLowerCase('pt-BR')===name.toLocaleLowerCase('pt-BR'))) fail('Este nome já está na partida.');
  const p={id,token,name,balance:state.initial,failed:false,card:colorOf(profile.card),pawn:colorOf(profile.pawn),peak:state.initial}; state.players.push(p); return p;
 }
-export function snapshot(s) { return {code:s.code,initial:s.initial,host:s.host,ended:s.ended,revision:s.revision,players:s.players.map(({token,...p})=>p),transactions:s.transactions.slice(-100).reverse()}; }
+export function snapshot(s) { return {code:s.code,initial:s.initial,host:s.host,ended:s.ended,revision:s.revision,players:s.players.map(({token,...p})=>p),auction:s.auction??null,serverNow:Date.now(),transactions:s.transactions.slice(-100).reverse()}; }
 export function move(s,actor,b,now=Date.now()) {
  const p=player(s,actor);
  if(typeof b.requestId!=='string'||!/^[a-zA-Z0-9-]{16,80}$/.test(b.requestId)) fail('Identificador inválido.');
@@ -19,15 +19,15 @@ export function move(s,actor,b,now=Date.now()) {
  if(s.ended) fail('Partida encerrada.');
  if(p.failed && b.kind!=='end') fail('Jogador falido.');
  let from,to,amount=0,label;
- if(b.kind==='end') { if(actor!==s.host) fail('Somente quem criou a partida pode encerrá-la.',403); s.ended=true; label='Partida encerrada'; }
- else if(b.kind==='bankrupt') { from=p; amount=p.balance; p.balance=0; p.failed=true; label='Falência'; }
+ if(b.kind==='end') { if(s.auction?.status==='active') fail('Aguarde o leilão terminar.'); if(actor!==s.host) fail('Somente quem criou a partida pode encerrá-la.',403); s.ended=true; label='Partida encerrada'; }
+ else if(b.kind==='bankrupt') { if(s.auction?.status==='active'&&(s.auction.leader===p.id||s.auction.seller===p.id))fail('Aguarde o leilão terminar.'); from=p; amount=p.balance; p.balance=0; p.failed=true; label='Falência'; }
  else {
   amount=b.amount; if(!validAmount(amount)) fail('Valor inválido.');
   if(b.kind==='pix') { from=p; to=player(s,b.to); if(from===to) fail('Escolha outro jogador.'); label='Pix'; }
   else if(b.kind==='pay') { from=p; label='Pagamento ao banco'; }
   else if(b.kind==='receive') { to=p; label='Recebimento do banco'; }
   else fail('Operação inválida.');
-  if(from&&from.balance<amount) fail('Saldo insuficiente.');
+  if(from&&from.balance-(s.auction?.status==='active'&&s.auction.leader===from.id?s.auction.highest:0)<amount) fail('Saldo insuficiente.');
   if(to&&(to.failed||to.balance+amount>MAX)) fail('Destinatário indisponível ou limite excedido.');
   if(from) from.balance-=amount;
   if(to) to.balance+=amount;

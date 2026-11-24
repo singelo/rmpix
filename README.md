@@ -16,3 +16,6 @@ Saldo inteiro em $, até 12 jogadores. Cada jogador pode pagar e receber do banc
 
 ## v0.3
 Peões SVG e cartões com oito cores propostas (edições físicas podem variar). Recordes são marcos de saldo alcançados pela primeira vez, não patrimônio; o saldo inicial não dispara conquista. O botão Testar push mostra o código HTTP e motivo retornado pelo provedor sem alterar saldo. HTTP 2xx significa aceitação, não entrega confirmada no aparelho. Sem descrição nas operações e sem botão de compartilhar; entre com o código da sala.
+
+## v0.4 — Leilão
+Saldo padrão $25.000; atalhos $500, $1.000, $2.000. Peão e cartão ficam imutáveis na entrada. Leilão opcional: 20s de preparação, 5s para o primeiro lance, mínimo inicial de 20% arredondado para cima, próximos lances acima do líder em pelo menos $1. Cada lance reinicia o relógio em 5s. Um leilão por sala; banco ou vendedor jogador, que não pode comprar a própria propriedade. Valor do líder reservado; encerramento automático por Durable Object Alarm, sem depender de navegador. Sem lance, sem venda. O título físico deve ser entregue manualmente; o aplicativo apenas movimenta dinheiro. Não altera saldos existentes. Web Push depende da entrega do provedor.

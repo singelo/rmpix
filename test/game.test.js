@@ -8,4 +8,4 @@ test('snapshot não expõe credenciais',()=>{assert.equal(JSON.stringify(snapsho
 
 test('criador falido ainda encerra',()=>{const s=setup();move(s,'a',tx('bankrupt',0));move(s,'a',tx('end',0,'','end-123456789012'));assert.equal(s.ended,true)});
 
-test('marco financeiro apenas na primeira passagem',()=>{const s=setup();s.initial=900000;s.players[0].balance=900000;s.players[0].peak=900000;move(s,'a',tx('receive',200000));assert.equal(s.transactions.at(-1).achievement.amount,1000000);move(s,'a',tx('pay',200000,'','pay-123456789012'));move(s,'a',tx('receive',200000,'','receive-123456789'));assert.equal(s.transactions.at(-1).achievement,null)});
+test('marco financeiro apenas na primeira passagem',()=>{const s=setup();s.initial=29000;s.players[0].balance=29000;s.players[0].peak=29000;move(s,'a',tx('receive',2000));assert.equal(s.transactions.at(-1).achievement.amount,30000);move(s,'a',tx('pay',2000,'','pay-123456789012'));move(s,'a',tx('receive',2000,'','receive-123456789'));assert.equal(s.transactions.at(-1).achievement,null)});
