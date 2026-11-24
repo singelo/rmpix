@@ -1,5 +1,6 @@
 import { DurableObject } from 'cloudflare:workers';
 import {ROOM_CODE,summarize} from './history.js';
+import {AUDIO_LIMIT} from './victory-audio.js';
 export {Directory} from './directory.js';
 import {addPlayer,move,snapshot,validAmount,fail} from './game.js';
 import {openAuction,bid,finishAuction} from './auction.js';
@@ -19,7 +20,10 @@ export default {async fetch(req,env){
   if(req.method!=='POST')return json({error:'Método inválido.'},405);
   if(!env.ADMIN_CODE||env.ADMIN_CODE.length<12)return json({error:'Configure ADMIN_CODE (mínimo 12 caracteres) na Cloudflare.'},503);
   if(!await authorized(req,env))return json({error:'Código administrativo incorreto.'},401);
-  try{const b=await body(req);
+  try{if(url.pathname==='/api/admin/victory-audio'){if(Number(req.headers.get('Content-Length'))>AUDIO_LIMIT)return json({error:'MP3 acima de 1 MiB.'},413);return directory(env).fetch('https://directory.internal/audio',{method:'POST',body:req.body});}
+   if(url.pathname==='/api/admin/victory-audio-status')return dir(env,'/audio-status');
+   if(url.pathname==='/api/admin/victory-audio-remove')return dir(env,'/audio-remove',{});
+   const b=await body(req);
    if(url.pathname==='/api/admin/list'){const d=await (await dir(env,'/list?before='+encodeURIComponent(b.before??''))).json();const items=await Promise.all(d.rooms.map(async x=>{try{const r=await room(env,x.code).fetch('https://room.internal/internal/summary');return r.ok?await r.json():null}catch{return {code:x.code,unavailable:true}}}));return json({rooms:items.filter(Boolean),next:d.next});}
    if(url.pathname==='/api/admin/detail'){const code=typeof b.code==='string'?b.code.trim().toUpperCase():'';if(!ROOM_CODE.test(code))return json({error:'Código de sala inválido.'},400);const r=await room(env,code).fetch('https://room.internal/internal/detail');if(!r.ok)return json({error:'Partida não encontrada.'},404);await dir(env,'/register',{code});return json(await r.json());}
    return json({error:'Rota inválida.'},404);
@@ -29,7 +33,7 @@ export default {async fetch(req,env){
   const b=await body(req).catch(()=>null);if(!b||!validAmount(b.initial)||typeof b.name!=='string'||!b.name.trim()||b.name.trim().length>30)return json({error:'Informe nome e saldo inicial válidos.'},400);
   const allocation=await dir(env,'/allocate',{});if(!allocation.ok)return json({error:'Não foi possível gerar a sala.'},503);const {code:key}=await allocation.json();return room(env,key).fetch(new Request(new URL('/api/'+key+'/create',url),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}));
  }
- const m=url.pathname.match(/^\/api\/(BR[0-9]{3,12}|[A-Z2-9]{8})\/(join|state|move|ws|push-key|subscribe|push-test|auction-open|auction-bid)$/);
+ const m=url.pathname.match(/^\/api\/(BR[0-9]{3,12}|[A-Z2-9]{8})\/(join|state|move|ws|push-key|subscribe|push-test|auction-open|auction-bid|victory-audio)$/);
  if(!m)return json({error:'Rota inválida.'},404);
  return env.ROOMS.get(env.ROOMS.idFromName(m[1])).fetch(req);
 }};
@@ -71,6 +75,7 @@ export class Room extends DurableObject {
    }
    const token=req.headers.get('Authorization')?.replace(/^Bearer /,'');
    const p=s.players.find(p=>p.token===token);if(!p)fail('Sessão inválida.',401);
+   if(action==='victory-audio'&&req.method==='GET')return dir(this.env,'/audio');
    if(action==='auction-open'&&req.method==='POST'){if(openAuction(s,p.id,b)){s.origin=origin;this.save(s);this.broadcast(s);await this.schedule(s);this.ctx.waitUntil(this.notify({kind:'auction_open',id:s.auction.id,actor:p.id,property:s.auction.property},origin));}return json({state:snapshot(s)});}
    if(action==='auction-bid'&&req.method==='POST'){if(bid(s,p.id,b)){this.save(s);this.broadcast(s);await this.schedule(s);}return json({state:snapshot(s)});}
    if(action==='push-test'&&req.method==='POST'){const row=this.sql.exec('SELECT data FROM subscriptions WHERE player=?',p.id).toArray()[0];if(!row)fail('Ative as notificações primeiro.');try{const r=await sendPush(JSON.parse(row.data),await this.vapid(),{body:'Teste RM PIX: notificações funcionando!',tag:crypto.randomUUID()},new URL(req.url).origin);const reason=r.ok?'Aceito pelo serviço de push':r.status>=300&&r.status<400?'Redirecionamento recusado pelo RM PIX (não seguido).':(await r.text()).slice(0,180)||r.statusText;if(r.ok)await r.body?.cancel();return json({accepted:r.ok,status:r.status,reason})}catch(e){return json({accepted:false,status:0,reason:String(e.message).slice(0,180)})}}

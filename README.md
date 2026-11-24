@@ -31,3 +31,6 @@ Salas novas BR001, BR002... sequenciais, sem reutilização. Código de sala é 
 
 ## v0.5.1 — Sons e celebrações
 Efeitos originais sintetizados por Web Audio, sem arquivos externos: Pix, banco, leilão aberto, início dos lances, lance aceito, últimos três segundos, vendido, sem venda, falência, conquistas e vitória. Som local, após interação do usuário, com preferência persistente e botão de teste. Não há áudio personalizado de push com a PWA fechada; vale o som do sistema. Coroa no peão campeão, destaque dourado e confetes; respeita redução de movimento. Sem migração ou dependências novas.
+
+## v0.5.2 — Trilha de vitória
+No painel /admin, configure um trecho MP3 autorizado de até 1 MiB. O arquivo fica no SQLite do Directory, fora do GitHub, e é acessado por jogadores autenticados. Decodificação local, duração entre 1 e 120s; recomenda-se um trecho curto de 8–12s. Reabre-se a aplicação para atualizar a trilha em todos os dispositivos. Vitória dura 24s, áudio em loop e botão Voltar ao jogo interrompe a reprodução local. Sem arquivo, fanfarra original repetida. Respeita som desativado, modo silencioso e restrições de reprodução do navegador; não toca com aplicativo fechado. Não inclui gravações comerciais.

@@ -34,11 +34,26 @@ export function unlockSound(){
  initPreference();if(!enabled)return;
  try{const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return;if(!ctx){ctx=new Audio();master=ctx.createGain();master.gain.value=.16;master.connect(ctx.destination)}if(ctx.state!=='running')return ctx.resume().catch(()=>{})}catch{}
 }
-export function setSound(on){initPreference();enabled=!!on;try{localStorage.setItem('rmpix-sound',enabled?'on':'off')}catch{}if(master&&ctx)master.gain.setValueAtTime(enabled?.16:0,ctx.currentTime);if(enabled)return unlockSound()}
+export function setSound(on){initPreference();enabled=!!on;try{localStorage.setItem('rmpix-sound',enabled?'on':'off')}catch{}if(master&&ctx)master.gain.setValueAtTime(enabled?.16:0,ctx.currentTime);if(!enabled)stopVictory();if(enabled)return unlockSound()}
 export function playSound(name){
  if(!soundEnabled()||!ctx||ctx.state!=='running'||document.hidden||!CUES[name])return false;
  try{const start=ctx.currentTime+.008;for(const [hz,duration,offset,type,vol,endHz] of CUES[name]){
  const osc=ctx.createOscillator(),gain=ctx.createGain(),at=start+offset;osc.type=type;osc.frequency.setValueAtTime(hz,at);if(endHz)osc.frequency.exponentialRampToValueAtTime(endHz,at+duration);
  gain.gain.setValueAtTime(.0001,at);gain.gain.exponentialRampToValueAtTime(Math.max(.001,vol*.45),at+.012);gain.gain.exponentialRampToValueAtTime(.0001,at+duration);osc.connect(gain);gain.connect(master);osc.start(at);osc.stop(at+duration+.02);osc.onended=()=>{osc.disconnect();gain.disconnect()};
  }return true}catch{return false}
+}
+
+let victoryBuffer=null,victorySource=null,victoryGain=null,victorySession=null,loading=null,loopTimer=null,loopUntil=0;
+export const VICTORY_DURATION=24000;
+export function preloadVictory(code,token){
+ const key=code+':'+token;if(victorySession!==key){stopVictory();victorySession=key;victoryBuffer=null;loading=null}
+ if(victoryBuffer||loading)return loading;
+ const current=key;
+ loading=(async()=>{try{if(!ctx)return;const r=await fetch('/api/'+code+'/victory-audio',{headers:{Authorization:'Bearer '+token},cache:'no-store'});if(!r.ok)return;const bytes=await r.arrayBuffer();if(bytes.byteLength>1048576)return;const decoded=await ctx.decodeAudioData(bytes);if(victorySession===current&&decoded.duration>=1&&decoded.duration<=120)victoryBuffer=decoded}catch{}finally{if(victorySession===current)loading=null}})();return loading
+}
+export function stopVictory(){clearInterval(loopTimer);loopTimer=null;loopUntil=0;if(victorySource){try{victorySource.stop();victorySource.disconnect();victoryGain?.disconnect()}catch{}victorySource=null;victoryGain=null}}
+export function playVictory(duration=VICTORY_DURATION){stopVictory();if(!soundEnabled()||!ctx||ctx.state!=='running'||document.hidden)return false;
+ if(victoryBuffer){try{victorySource=ctx.createBufferSource();victoryGain=ctx.createGain();victoryGain.gain.value=.9;victorySource.buffer=victoryBuffer;victorySource.loop=true;victorySource.connect(victoryGain);victoryGain.connect(master);victorySource.start();victorySource.stop(ctx.currentTime+duration/1000);return true}catch{stopVictory()}}
+ // Repeat only the original short game fanfare if no authorized clip is configured.
+ playSound('victory');loopUntil=Date.now()+duration;loopTimer=setInterval(()=>{if(Date.now()>=loopUntil||!soundEnabled()||document.hidden){stopVictory();return}playSound('victory')},1800);return true
 }

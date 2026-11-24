@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {isMp3,readAudio,AUDIO_LIMIT} from '../src/victory-audio.js';
+test('MP3 e limite de upload',async()=>{assert.equal(isMp3(Uint8Array.from([73,68,51,4])),true);assert.equal(isMp3(Uint8Array.from([0,1,2,3])),false);assert.equal((await readAudio(new Request('https://example.org',{method:'POST',body:Uint8Array.from([73,68,51,4])}))).length,4);assert.equal(await readAudio(new Request('https://example.org',{method:'POST',body:new Uint8Array(AUDIO_LIMIT+1)})),null)});
