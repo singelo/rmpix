@@ -80,3 +80,6 @@ Somente VISA SEM LIMITE, AMERICAN DEPRESS, MASTERCALOTE, PLATINUM SERASA e BLACK
 
 ## v0.7.4 — Formulários mobile
 Seletores nativos de Pix/Banco substituídos por opções inline acessíveis, sem popover do sistema. Dialogs não abrem o teclado automaticamente; dimensionamento pela VisualViewport, navegação oculta enquanto digita, máscara monetária com cursor preservado, lances digitados preservados quando chega outro lance. Manifesto retrato; tentativa de bloqueio via Screen Orientation em PWA, proteção visual quando a rotação não é suportada. Sem alterar transações ou regras. iOS e Android reais devem ser validados.
+
+## v0.7.5 — Avisos puláveis
+Toque no fundo do aviso ou na indicação de continuar para dispensar o evento atual. A fila avança para o próximo evento sem aguardar o tempo restante. O toque é consumido pela camada de aviso e não aciona controles atrás. Escape também fecha o aviso quando não há formulário modal aberto. A comemoração final continua tocando normalmente até ser dispensada neste aparelho; histórico e notificações dos demais jogadores não são afetados.

@@ -136,3 +136,6 @@ input{scroll-margin-block:12px}
 body.phone-landscape{overflow:hidden}body.phone-landscape .shell{visibility:hidden;pointer-events:none}
 dialog.orientation-blocked{visibility:hidden;pointer-events:none}
 dialog.orientation-blocked::backdrop{background:transparent}
+
+/* Dismissible event overlay. The backdrop consumes the tap, never passes it to a payment control. */
+.gameevent.show{pointer-events:auto;touch-action:manipulation;overscroll-behavior:contain}.gameevent .eventcard{pointer-events:auto;max-height:calc(var(--visible-height,100dvh) - 36px);overflow-y:auto;overscroll-behavior:contain}.gameevent #eventHint{display:block;width:100%;padding:10px 2px 0;margin-top:6px;min-height:36px;color:#fff;font-size:11px;font-weight:500;opacity:.85}.gameevent #eventHint:focus-visible{outline-color:#fff}.gameevent.victory #eventHint{padding-top:4px}.gameevent #confetti{pointer-events:none}
