@@ -58,8 +58,8 @@ export function move(s,actor,b,now=Date.now()) {
 export function crownSurvivor(s,now=Date.now()){
  if(s.ended||s.players.length<2)return null;
  const alive=s.players.filter(p=>!p.failed);if(alive.length!==1)return null;
- const p=alive[0];s.ended=true;s.endedAt=now;s.winner={id:p.id,name:p.name,pawn:p.pawn??'blue',balance:p.balance,title:'Mestre Supremo'};
+ const p=alive[0],eventId='victory-'+s.code+'-'+(s.revision+1);s.ended=true;s.endedAt=now;s.winner={eventId,id:p.id,name:p.name,pawn:p.pawn??'blue',balance:p.balance,title:'Mestre Supremo'};
  if(s.auction?.status==='active'){s.auction.status='unsold';s.auction.closedAt=now;}
- const t={id:'victory-'+s.code,actor:p.id,kind:'victory',from:p.id,to:p.id,fromName:p.name,toName:p.name,amount:0,label:'Mestre Supremo',winner:s.winner,at:now};
+ const t={id:eventId,actor:p.id,kind:'victory',from:p.id,to:p.id,fromName:p.name,toName:p.name,amount:0,label:'Mestre Supremo',winner:s.winner,at:now};
  s.transactions.push(t);return t;
 }

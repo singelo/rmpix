@@ -2,6 +2,7 @@ import { DurableObject } from 'cloudflare:workers';
 import {ROOM_CODE,summarize} from './history.js';
 import {AUDIO_LIMIT} from './victory-audio.js';
 export {Directory} from './directory.js';
+import {revoke} from './revoke.js';
 import {addPlayer,move,snapshot,validAmount,fail,profileAvailability,validateProfile} from './game.js';
 import {openAuction,bid,finishAuction} from './auction.js';
 import {generateVapid,validSubscription,sendPush,pushEvent} from './push.js';
@@ -34,7 +35,7 @@ export default {async fetch(req,env){
   try{validateProfile({players:[]},b)}catch(e){return json({error:e.message},e.status||400)}
   const allocation=await dir(env,'/allocate',{});if(!allocation.ok)return json({error:'Não foi possível gerar a sala.'},503);const {code:key}=await allocation.json();return room(env,key).fetch(new Request(new URL('/api/'+key+'/create',url),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}));
  }
- const m=url.pathname.match(/^\/api\/(BR[0-9]{3,12}|[A-Z2-9]{8})\/(join|availability|state|move|ws|push-key|subscribe|push-test|auction-open|auction-bid|victory-audio)$/);
+ const m=url.pathname.match(/^\/api\/(BR[0-9]{3,12}|[A-Z2-9]{8})\/(join|availability|state|move|revoke|ws|push-key|subscribe|push-test|auction-open|auction-bid|victory-audio)$/);
  if(!m)return json({error:'Rota inválida.'},404);
  return env.ROOMS.get(env.ROOMS.idFromName(m[1])).fetch(req);
 }};
@@ -84,6 +85,7 @@ export class Room extends DurableObject {
    if(action==='push-key'&&req.method==='GET')return json({key:(await this.vapid()).key});
    if(action==='subscribe'&&req.method==='POST'){if(b.subscription===null)this.sql.exec('DELETE FROM subscriptions WHERE player=?',p.id);else{if(!validSubscription(b.subscription))fail('Inscrição de push inválida.');this.sql.exec('INSERT INTO subscriptions(player,data) VALUES(?,?) ON CONFLICT(player) DO UPDATE SET data=excluded.data',p.id,JSON.stringify(b.subscription));}return json({ok:true});}
    if(action==='state'&&req.method==='GET')return json({state:snapshot(s)});
+   if(action==='revoke'&&req.method==='POST'){const previous=s.transactions.length;if(revoke(s,p.id,b)){this.save(s);this.broadcast(s);const events=s.transactions.slice(previous);this.ctx.waitUntil((async()=>{for(const t of events)await this.notify(t,origin)})());}return json({state:snapshot(s)});}
    if(action==='move'&&req.method==='POST'){
     const previous=s.transactions.length;if(move(s,p.id,b)){this.save(s);this.broadcast(s);const events=s.transactions.slice(previous);this.ctx.waitUntil((async()=>{for(const t of events)await this.notify(t,origin)})());}
     return json({state:snapshot(s)});

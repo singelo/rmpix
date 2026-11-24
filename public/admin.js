@@ -1,4 +1,4 @@
-import {transactionDisplay,awardHistory} from './activity.js?v=7.6';
+import {transactionDisplay,awardHistory} from './activity.js?v=7.7';
 import {combineHall,AWARDS,awardType,titleValue} from './awards.js?v=7.3';
 const $=id=>document.getElementById(id),money=n=>'$ '+Number(n).toLocaleString('pt-BR'),date=n=>n?new Date(n).toLocaleString('pt-BR'):'Não registrada',show=(el,yes)=>el.classList.toggle('hidden',!yes);
 let secret='',next=null,busy=false;

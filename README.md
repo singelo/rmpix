@@ -86,3 +86,6 @@ Toque no fundo do aviso ou na indicação de continuar para dispensar o evento a
 
 ## v0.7.6 — Extrato limpo
 A aba Partida abre em Movimentações: Pix, pagamentos, recebimentos, compras em leilão (imóvel, lance e total), leilões sem venda, falências e encerramento. Conquistas, títulos, alertas e marcos em aba separada, mantendo popups, notificações e ranking. As duas abas usam as últimas 100 ocorrências do snapshot, como antes; painel admin mantém extrato completo e histórico de conquistas separado. Horários locais. Sem novos campos de motivo, nenhuma mudança financeira.
+
+## v0.7.7 — Revogação pelo criador
+Na aba Partida, o criador autenticado pode revogar Pix, pagamentos, recebimentos, leilões concluídos/sem venda, falências e encerramento manual. O registro original permanece marcado, com autor e horário e registro adicional de auditoria. Replay atômico do extrato recompõe saldos, falências, picos, marcos, títulos, ranking e resultado; bloqueia dependências inválidas e leilões ativos. Coroas derivadas são corrigidas automaticamente. Imóveis físicos precisam ser devolvidos manualmente. Histórico legado inconsistente não é alterado. Sem novas dependências ou migrações.

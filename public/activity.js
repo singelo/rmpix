@@ -1,9 +1,11 @@
 import {AWARDS,titleValue} from './awards.js?v=7.3';
 const money=n=>'$ '+Number(n).toLocaleString('pt-BR');
-export function transactionDisplay(t){
+export function transactionDisplay(t){const d=describeTransaction(t);return t.revoked?{...d,tone:'revoked',label:d.label+' · Revogada',detail:[d.detail,'Revogada por '+(t.revoked.name||'Criador')].filter(Boolean).join(' · ')}:d}
+function describeTransaction(t){
  const from=t.fromName||'Banco',to=t.toName||'Banco';
  const base={icon:'↔',label:t.label||'Movimentação',route:from+' → '+to,detail:'',value:money(t.amount),tone:'',at:t.at};
  switch(t.kind){
+ case 'revoke':return {...base,icon:'↶',label:'Operação revogada',route:from+' corrigiu a partida',detail:[t.targetLabel||t.targetKind,t.targetFromName&&t.targetToName?t.targetFromName+' → '+t.targetToName:'',t.targetAmount>0?money(t.targetAmount):''].filter(Boolean).join(' · '),value:'',tone:'correction'};
  case 'pix':return {...base,icon:'↗',label:'Pix',detail:t.note||''};
  case 'pay':return {...base,icon:'↗',label:'Pagamento ao banco',detail:t.note||''};
  case 'receive':return {...base,icon:'↙',label:'Recebimento do banco',tone:'green',detail:t.note||''};
@@ -20,7 +22,7 @@ export function awardHistory(transactions,stats){
  const key=(actor,id)=>JSON.stringify([actor??null,id]);
  const index=new Map(),useStats=stats?.version>=2&&Array.isArray(stats.awards);
  if(useStats)for(const a of stats.awards){const k=key(a.actor,a.transaction);if(!index.has(k))index.set(k,[]);index.get(k).push(a)}
- return transactions.flatMap(t=>{
+ return transactions.flatMap(t=>{if(t.revoked||t.kind==='revoke')return [];
   const awards=useStats?index.get(key(t.actor,t.id))||[]:t.awards||[];
   const rows=awards.filter(a=>AWARDS[a.key]).map(a=>({icon:AWARDS[a.key][1],label:AWARDS[a.key][0],route:a.name,detail:a.phrase||AWARDS[a.key][2],value:a.type==='title'?titleValue(a):'',tone:a.type==='title'?'gold':a.type==='status'?'alert':'',at:a.at??t.at}));
   if(t.achievement)rows.push({icon:'🏆',label:'Marco financeiro',route:t.achievement.name,detail:'Novo recorde pessoal de saldo',value:money(t.achievement.amount),tone:'green',at:t.at});
