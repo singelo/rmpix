@@ -1,4 +1,4 @@
-import {colorOf,milestones} from '../public/theme.js';
+import {colorOf,milestones,reservedAuction} from '../public/theme.js';
 export const MAX = 999999999999;
 export function validAmount(n) { return Number.isSafeInteger(n) && n > 0 && n <= MAX; }
 export function fail(message, status=400) { throw Object.assign(new Error(message), {status}); }
@@ -27,8 +27,8 @@ export function move(s,actor,b,now=Date.now()) {
   else if(b.kind==='pay') { from=p; label='Pagamento ao banco'; }
   else if(b.kind==='receive') { to=p; label='Recebimento do banco'; }
   else fail('Operação inválida.');
-  if(from&&from.balance-(s.auction?.status==='active'&&s.auction.leader===from.id?s.auction.highest:0)<amount) fail('Saldo insuficiente.');
-  if(to&&(to.failed||to.balance+amount>MAX)) fail('Destinatário indisponível ou limite excedido.');
+  if(from&&from.balance-reservedAuction(s.auction,from.id)<amount) fail('Saldo insuficiente.');
+  if(to&&(to.failed||to.balance+amount+(s.auction?.status==='active'&&s.auction.seller===to.id&&s.auction.leader?reservedAuction(s.auction,s.auction.leader):0)>MAX)) fail('Destinatário indisponível ou limite excedido.');
   if(from) from.balance-=amount;
   if(to) to.balance+=amount;
  }

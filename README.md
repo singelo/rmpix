@@ -22,3 +22,6 @@ Saldo padrão $25.000; atalhos $500, $1.000, $2.000. Peão e cartão ficam imut�
 
 ## v0.4.1
 Ícone de leilão em SVG padronizado. Push usa redirect manual, sem seguir redirecionamentos, compatível com Cloudflare Workers. Leilões antigos do banco ainda ativos são cancelados sem movimentação na próxima operação ou alarme; histórico preservado.
+
+## v0.4.2
+Novos leilões cobram preço original + lance vencedor, integralmente reservado. 20s de preparação e 8s para primeiro lance e cada novo lance válido. Leilões antigos em andamento mantêm o preço acordado; próximos lances válidos passam a usar 8s. Cartão rachado e peão com X na falência. Push confirmado pelo usuário na versão anterior.

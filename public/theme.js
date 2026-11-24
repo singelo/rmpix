@@ -6,3 +6,8 @@ export function colorOf(value){return Object.hasOwn(COLORS,value)?value:'blue'}
 
 // O valor do próximo lance é o total atual mais 20% do preço original.
 export function nextBid(auction){return (auction.highest||0)+Math.ceil(auction.value/5)}
+
+export const AUCTION_PREP_MS=20000, AUCTION_BID_MS=8000;
+// Existing auctions keep their agreed price; new auctions include the property base.
+export function auctionTotal(a,bid=a.highest){return (a.pricing==='base-plus-bid'?a.value:0)+bid}
+export function reservedAuction(a,id){return a?.status==='active'&&a.leader===id?auctionTotal(a):0}
