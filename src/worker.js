@@ -1,5 +1,6 @@
 import { DurableObject } from 'cloudflare:workers';
 import {addPlayer,move,snapshot,validAmount,fail} from './game.js';
+import {generateVapid,validSubscription,sendPush,pushEvent} from './push.js';
 const json=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store'}});
 function code(){const a=new Uint8Array(8);crypto.getRandomValues(a);return Array.from(a,b=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[b%32]).join('');}
 async function body(req){try{return await req.json()}catch{fail('Dados inválidos.')}}
@@ -10,15 +11,17 @@ export default {async fetch(req,env){
  if(req.method==='POST'&&url.pathname==='/api/create'){
   const key=code();return env.ROOMS.get(env.ROOMS.idFromName(key)).fetch(new Request(new URL('/api/'+key+'/create',url),req));
  }
- const m=url.pathname.match(/^\/api\/([A-Z2-9]{8})\/(join|state|move|ws)$/);
+ const m=url.pathname.match(/^\/api\/([A-Z2-9]{8})\/(join|state|move|ws|push-key|subscribe)$/);
  if(!m)return json({error:'Rota inválida.'},404);
  return env.ROOMS.get(env.ROOMS.idFromName(m[1])).fetch(req);
 }};
 export class Room extends DurableObject {
- constructor(ctx,env){super(ctx,env);this.ctx=ctx;this.sql=ctx.storage.sql;this.sql.exec('CREATE TABLE IF NOT EXISTS room (id INTEGER PRIMARY KEY, data TEXT NOT NULL)');}
+ constructor(ctx,env){super(ctx,env);this.ctx=ctx;this.sql=ctx.storage.sql;this.sql.exec('CREATE TABLE IF NOT EXISTS room (id INTEGER PRIMARY KEY, data TEXT NOT NULL)');this.sql.exec('CREATE TABLE IF NOT EXISTS push_keys (id INTEGER PRIMARY KEY, data TEXT NOT NULL)');this.sql.exec('CREATE TABLE IF NOT EXISTS subscriptions (player TEXT PRIMARY KEY, data TEXT NOT NULL)');}
  load(){const rows=this.sql.exec('SELECT data FROM room WHERE id=1').toArray();return rows.length?JSON.parse(rows[0].data):null;}
  save(s){this.sql.exec('INSERT INTO room(id,data) VALUES(1,?) ON CONFLICT(id) DO UPDATE SET data=excluded.data',JSON.stringify(s));}
  broadcast(s){const msg=JSON.stringify({type:'state',state:snapshot(s)});for(const ws of this.ctx.getWebSockets()){try{ws.send(msg)}catch{}}}
+ async vapid(){const read=()=>this.sql.exec('SELECT data FROM push_keys WHERE id=1').toArray()[0];const old=read();if(old)return JSON.parse(old.data);const candidate=await generateVapid();this.sql.exec('INSERT OR IGNORE INTO push_keys(id,data) VALUES(1,?)',JSON.stringify(candidate));return JSON.parse(read().data)}
+ async notify(t,origin){const rows=this.sql.exec('SELECT player,data FROM subscriptions').toArray();if(!rows.length)return;const vapid=await this.vapid();await Promise.allSettled(rows.map(async row=>{const body=pushEvent(t,row.player);if(!body)return;try{const r=await sendPush(JSON.parse(row.data),vapid,{body,tag:t.actor+':'+t.id},origin);if(r.status===404||r.status===410)this.sql.exec('DELETE FROM subscriptions WHERE player=? AND data=?',row.player,row.data);else if(!r.ok)console.warn('Web Push status',r.status);await r.body?.cancel()}catch(e){console.warn('Web Push delivery failed',e.message)}}))}
  async fetch(req){
   try{
    const [, ,code,action]=new URL(req.url).pathname.split('/');
@@ -44,9 +47,11 @@ export class Room extends DurableObject {
    }
    const token=req.headers.get('Authorization')?.replace(/^Bearer /,'');
    const p=s.players.find(p=>p.token===token);if(!p)fail('Sessão inválida.',401);
+   if(action==='push-key'&&req.method==='GET')return json({key:(await this.vapid()).key});
+   if(action==='subscribe'&&req.method==='POST'){if(b.subscription===null)this.sql.exec('DELETE FROM subscriptions WHERE player=?',p.id);else{if(!validSubscription(b.subscription))fail('Inscrição de push inválida.');this.sql.exec('INSERT INTO subscriptions(player,data) VALUES(?,?) ON CONFLICT(player) DO UPDATE SET data=excluded.data',p.id,JSON.stringify(b.subscription));}return json({ok:true});}
    if(action==='state'&&req.method==='GET')return json({state:snapshot(s)});
    if(action==='move'&&req.method==='POST'){
-    if(move(s,p.id,b)){this.save(s);this.broadcast(s);}
+    if(move(s,p.id,b)){this.save(s);this.broadcast(s);this.ctx.waitUntil(this.notify(s.transactions.at(-1),new URL(req.url).origin));}
     return json({state:snapshot(s)});
    }
    fail('Operação inválida.',405);
